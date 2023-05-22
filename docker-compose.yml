@@ -3,7 +3,6 @@ version: "1"
 services:
   rabbitmq:
     image: rabbitmq:3-management
-    hostname: rabbitmq
     ports:
       - 5672:5672
       - 15672:15672
@@ -18,7 +17,6 @@ services:
       - 3000:3000
     depends_on:
       - rabbitmq
-    network_mode: "host"
 volumes:
     rabbitmq_data:
     rabbitmq_log:
