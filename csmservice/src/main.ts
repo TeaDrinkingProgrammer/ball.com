@@ -5,7 +5,6 @@ import { log } from 'console';
 
 //TODO - change queue name
 async function bootstrap() {
-  console.log("Starting microservice")
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
     transport: Transport.RMQ,
     options: {
