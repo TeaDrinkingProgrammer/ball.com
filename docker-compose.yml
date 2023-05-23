@@ -9,9 +9,9 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/
       - rabbitmq_log:/var/log/rabbitmq/
-  csm_service:
+  sales_management_service:
     build:
-      context: ./csmservice
+      context: ./SalesManagement
       target: development
     ports:
       - 3000:3000
