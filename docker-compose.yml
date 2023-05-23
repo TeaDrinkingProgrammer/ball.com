@@ -29,9 +29,29 @@ services:
       - eventstore_log:/var/log/eventstore
     depends_on:
       - rabbitmq
-    
+  mariadb:
+    container_name: mariadb
+    image: mariadb
+    cap_add: [SYS_NICE]
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - mariadb_data:/var/lib/mysql
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin
+    ports:
+        - 8080:80
+    depends_on:
+        - "mariadb"
+    cap_add: [SYS_NICE]
+    environment:
+        PMA_HOST: mariadb
+        PMA_PASSWORD: admin
+        PMA_USER: root
 volumes:
     rabbitmq_data:
     rabbitmq_log:
     eventstore_data:
     eventstore_log:
+    mariadb_data:
