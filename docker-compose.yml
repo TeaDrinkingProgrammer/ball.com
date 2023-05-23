@@ -17,6 +17,18 @@ services:
       - 3000:3000
     depends_on:
       - rabbitmq
+  eventstore:
+    image: eventstore/eventstore
+    ports:
+      - 2113:2113
+      - 1113:1113
+    environment:
+      - EVENTSTORE_INSECURE=true
+    volumes:
+      - eventstore_data:/var/lib/eventstore
+      - eventstore_log:/var/log/eventstore
+    depends_on:
+      - rabbitmq
   mariadb:
     container_name: mariadb
     image: mariadb
@@ -40,4 +52,6 @@ services:
 volumes:
     rabbitmq_data:
     rabbitmq_log:
+    eventstore_data:
+    eventstore_log:
     mariadb_data:
