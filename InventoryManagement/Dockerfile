@@ -1,20 +1,16 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+FROM node:lts-alpine AS development
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-COPY ["InventoryManagement/InventoryManagement.csproj", "InventoryManagement/"]
-RUN dotnet restore "InventoryManagement/InventoryManagement.csproj"
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN yarn install --only=development
+
 COPY . .
-WORKDIR "/src/InventoryManagement"
-RUN dotnet build "InventoryManagement.csproj" -c Release -o /app/build
 
-FROM build AS publish
-RUN dotnet publish "InventoryManagement.csproj" -c Release -o /app/publish /p:UseAppHost=false
+CMD ["yarn", "run", "start:dev"]
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "InventoryManagement.dll"]
+FROM node:lts-alpine as production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}

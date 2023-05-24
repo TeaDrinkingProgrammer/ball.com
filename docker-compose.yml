@@ -1,5 +1,5 @@
 name: balldotcom
-version: "1"
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -9,14 +9,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/
       - rabbitmq_log:/var/log/rabbitmq/
-  sales_management_service:
-    build:
-      context: ./SalesManagement
-      target: development
-    ports:
-      - 3000:3000
-    depends_on:
-      - rabbitmq
+
   eventstore:
     image: eventstore/eventstore
     ports:
@@ -29,6 +22,7 @@ services:
       - eventstore_log:/var/log/eventstore
     depends_on:
       - rabbitmq
+
   mariadb:
     container_name: mariadb
     image: mariadb
@@ -39,6 +33,7 @@ services:
       - mariadb_data:/var/lib/mysql
     ports:
       - 3306:3306
+
   phpmyadmin:
     container_name: phpmyadmin
     image: phpmyadmin
@@ -51,6 +46,7 @@ services:
         PMA_HOST: mariadb
         PMA_PASSWORD: admin
         PMA_USER: root
+
   mongo:
     container_name: mongo
     image: mongo
@@ -58,6 +54,27 @@ services:
       - 27017:27017
     volumes:
       - mongo_data:/data/db
+
+  # Microservices
+  sales_management_service:
+    build:
+      context: ./SalesManagement
+      target: development
+    ports:
+      - 3000:3000
+    depends_on:
+      - rabbitmq
+
+  inventory_management_service:
+    build:
+      context: ./InventoryManagement
+      target: development
+    ports:
+      - 3001:3001
+    depends_on:
+      - rabbitmq
+      - eventstore
+
 volumes:
     rabbitmq_data:
     rabbitmq_log:
