@@ -57,7 +57,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - mongo_data/data/db:/data/db
+      - mongo_data:/data/db
 volumes:
     rabbitmq_data:
     rabbitmq_log:

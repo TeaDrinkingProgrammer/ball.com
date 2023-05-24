@@ -2,6 +2,14 @@ import { ArrayMinSize, IsArray, IsNumber, IsString } from "class-validator";
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
+enum Status {
+    made = "made",
+    paid = "paid",
+    shipped = "shipped",
+    delivered = "delivered",
+    cancelled = "cancelled"
+}
+
 export class OrderPayload {
     @IsString()
     customerId: string;
@@ -14,14 +22,6 @@ export class OrderPayload {
     @IsArray()
     @ArrayMinSize(1)
     products: string[];
-}
-
-enum Status {
-    made = "made",
-    paid = "paid",
-    shipped = "shipped",
-    delivered = "delivered",
-    cancelled = "cancelled"
 }
 
 export type OrderDocument = HydratedDocument<Order>;
