@@ -37,6 +37,8 @@ services:
       MYSQL_ROOT_PASSWORD: admin
     volumes:
       - mariadb_data:/var/lib/mysql
+    ports:
+      - 3306:3306
   phpmyadmin:
     container_name: phpmyadmin
     image: phpmyadmin
