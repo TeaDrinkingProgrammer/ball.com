@@ -51,9 +51,17 @@ services:
         PMA_HOST: mariadb
         PMA_PASSWORD: admin
         PMA_USER: root
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data/data/db:/data/db
 volumes:
     rabbitmq_data:
     rabbitmq_log:
     eventstore_data:
     eventstore_log:
     mariadb_data:
+    mongo_data:
