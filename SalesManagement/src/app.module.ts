@@ -18,7 +18,13 @@ import { Product, ProductSchema } from './models/product';
     ClientsModule.register([
       {
         name: 'SERVICE', transport: Transport.RMQ,
-        options: rabbitmq,
+        options: {
+          urls: [rabbitmq],
+          queue: 'order',
+          queueOptions: {
+            durable: false
+          },
+        },
       },
     ]),
   ],

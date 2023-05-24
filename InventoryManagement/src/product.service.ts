@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,7 +13,10 @@ export class ProductService {
   async createProduct(ProductPayload: ProductPayload): Promise<any> {
     const newProduct = new Product(ProductPayload);
     const createdProduct = await this.ProductModel.create(newProduct);
-    this.client.emit<any>('ProductCreated', createdProduct);
+    this.client.emit('ProductCreated', {data: createdProduct.toJSON()});
+    // this.client.send('ProductCreated', createdProduct.toJSON());
+
+    Logger.log('Product created????');
     return { message: 'Product created', status: 201 }
   }
 

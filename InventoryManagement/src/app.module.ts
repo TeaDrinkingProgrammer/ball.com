@@ -4,7 +4,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './models/product';
 import { AppController } from './product.controller';
-import { mongodb, rabbitmq } from './connection';
+import { mongodb, rabbitmqUrl } from './connection';
 
 @Module({
   imports: [
@@ -13,7 +13,13 @@ import { mongodb, rabbitmq } from './connection';
     ClientsModule.register([
       {
         name: 'SERVICE', transport: Transport.RMQ,
-        options: rabbitmq,
+        options: {
+          urls: [rabbitmqUrl],
+          queue: 'product',
+          queueOptions: {
+              durable: false
+          },
+        },
       },
     ]),
   ],
