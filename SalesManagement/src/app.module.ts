@@ -4,25 +4,22 @@ import { OrderService } from './order.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Order, OrderSchema } from './models/order';
+import { ProductController } from './product.controller';
+import { mongodb, rabbitmq } from './connection';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(`mongodb://${process.env.host || 'mongo'}:27017/sales-management`),
+    MongooseModule.forRoot(mongodb),
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     ClientsModule.register([
       {
         name: 'SERVICE', transport: Transport.RMQ,
-        options: {
-          urls: [`amqp://guest:guest@${process.env.host || 'rabbitmq'}:5672`],
-          queue: 'user-messages',
-          queueOptions: {
-            durable: false
-          },
-        },
+        options: rabbitmq,
       },
     ]),
   ],
-  controllers: [AppController],
+  // controllers: [AppController, ProductController],
+  controllers: [ProductController, AppController],
   providers: [OrderService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -10,6 +10,6 @@ async function bootstrap() {
     options: rabbitmq,
   });
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000, async () => await listener.listen());
+  await app.listen(3001, async () => await listener.listen());
 }
 bootstrap();

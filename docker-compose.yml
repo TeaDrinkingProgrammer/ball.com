@@ -1,5 +1,4 @@
 name: balldotcom
-version: "1"
 services:
   rabbitmq:
     image: rabbitmq:3-management
@@ -17,6 +16,15 @@ services:
       - 3000:3000
     depends_on:
       - rabbitmq
+  inventory_management_service:
+    build:
+      context: ./InventoryManagement
+      target: development
+    ports:
+      - 3001:3001
+    depends_on:
+      - rabbitmq
+      - eventstore
   eventstore:
     image: eventstore/eventstore
     ports:
