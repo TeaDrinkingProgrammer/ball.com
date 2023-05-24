@@ -2,20 +2,18 @@ import { Module } from '@nestjs/common';
 import { AppController } from './order.controller';
 import { OrderService } from './order.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-
-
-function hostname(): string {
-  let host = process.env.host || 'rabbitmq';
-  return `amqp://guest:guest@${host}:5672`;
-}
+import { MongooseModule } from '@nestjs/mongoose';
+import { Order, OrderSchema } from './models/order';
 
 @Module({
   imports: [
+    MongooseModule.forRoot(`mongodb://${process.env.host || 'mongo'}:27017/sales-management`),
+    MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     ClientsModule.register([
       {
         name: 'SERVICE', transport: Transport.RMQ,
         options: {
-          urls: [hostname()],
+          urls: [`amqp://guest:guest@${process.env.host || 'rabbitmq'}:5672`],
           queue: 'user-messages',
           queueOptions: {
             durable: false

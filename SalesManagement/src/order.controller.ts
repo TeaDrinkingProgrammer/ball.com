@@ -1,5 +1,5 @@
-import { Body, Controller, Inject, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
-import { OrderPayload } from './event.order';
+import { Body, Controller, Get, Inject, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { OrderPayload } from './models/order';
 import { OrderService } from './order.service';
 
 @Controller('order')
