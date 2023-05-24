@@ -3,13 +3,12 @@ import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
 import { rabbitmq } from './connection';
 
-
 async function bootstrap() {
-  const listener = await NestFactory.createMicroservice(AppModule, {
-    name: 'SERVICE', transport: Transport.RMQ,
+  const app = await NestFactory.create(AppModule);
+  app.connectMicroservice({
+    transport: Transport.RMQ,
     options: rabbitmq,
   });
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000, async () => await listener.listen());
+  await app.listen(3000);
 }
 bootstrap();
