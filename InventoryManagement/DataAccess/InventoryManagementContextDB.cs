@@ -3,27 +3,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventoryManagement.DataAccess;
 
-public class InventoryManagementContaxtDB : DbContext
+public class InventoryManagementContextDB : DbContext
 {
-    public InventoryManagementContaxtDB(DbContextOptions<InventoryManagementContaxtDB> options) : base(options)
-    {
+    public InventoryManagementContextDB(DbContextOptions<InventoryManagementContextDB> options)
+        : base(options) { }
 
-    }
-    
     public DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<Product>().HasKey(m => m.ProductId);
-        builder.Entity<Product>().ToTable("Customer");
+        builder.Entity<Product>().HasKey(m => m.Id);
+        builder.Entity<Product>().ToTable("Product");
         base.OnModelCreating(builder);
-    }
-
-    public void MigrateDB()
-    {
-        Policy
-            .Handle<Exception>()
-            .WaitAndRetry(10, r => TimeSpan.FromSeconds(10))
-            .Execute(() => Database.Migrate());
     }
 }
