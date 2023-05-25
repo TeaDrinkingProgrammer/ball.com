@@ -10,7 +10,7 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq/
       - rabbitmq_log:/var/log/rabbitmq/
 
-  eventstore:
+  eventstoredb:
     image: eventstore/eventstore
     ports:
       - 2113:2113
@@ -73,7 +73,7 @@ services:
       - 3001:3001
     depends_on:
       - rabbitmq
-      - eventstore
+      - eventstoredb
 
 volumes:
     rabbitmq_data:
