@@ -4,9 +4,11 @@ import { HydratedDocument } from "mongoose";
 
 export type ProductDocument = HydratedDocument<Product>;
 
-
 @Schema()
 export class Product {
+  @Prop({ unique: true, index: true })
+  productId: string;
+
   @Prop({ required: true })
   name: string;
 
@@ -24,6 +26,16 @@ export class Product {
 
   @Prop({ required: true })
   manufacturer: string;
+
+  constructor(data: any) {
+    this.productId = data._id;
+    this.name = data.name;
+    this.description = data.description;
+    this.price = data.price;
+    this.quantity = data.quantity;
+    this.category = data.category;
+    this.manufacturer = data.manufacturer;
+  }
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
