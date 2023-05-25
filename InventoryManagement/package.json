@@ -33,6 +33,7 @@
     "nanoid": "^3.3.4",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "uuid": "^9.0.0",
     "yarn": "^1.22.19"
   },
   "devDependencies": {

@@ -2,7 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { rabbitmqUrl } from './connection';
-import { connectToEventstoreDB } from './event-store';
+import { client, connectToEventstoreDB } from './event-store';
+import { FORWARDS, START, jsonEvent } from '@eventstore/db-client';
+import { v4 as uuid } from 'uuid';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +18,7 @@ async function bootstrap() {
         durable: false
     },
   }});
+
   await app.startAllMicroservices();
   await app.listen(3001);
 }
