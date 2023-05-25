@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Logger, Param, Post, Put, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ProductService } from "./product.service";
-import { ProductPayload } from "./models/product";
+import { ProductMetaData, ProductQuantityPayload } from "./models/product";
 
 
 @Controller('product')
@@ -9,14 +9,14 @@ export class AppController {
 
   @Post()
   @UsePipes(new ValidationPipe({ transform: true }))
-  newOrder(@Body() productPayload: ProductPayload) {
+  newOrder(@Body() productPayload: ProductQuantityPayload) {
     Logger.log('Product created', productPayload);
     return this.productService.createProduct(productPayload);
   }
 
   @Put(':productId')
   @UsePipes(new ValidationPipe({ transform: true }))
-  updateProduct(@Param('productId') productId: string, @Body() productPayload: ProductPayload) {
+  updateProduct(@Param('productId') productId: string, @Body() productPayload: ProductMetaData) {
     return this.productService.updateProduct(productId, productPayload);
   }
 

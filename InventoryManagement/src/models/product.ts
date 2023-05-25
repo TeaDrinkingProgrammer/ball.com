@@ -1,69 +1,68 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { IsNumber, IsPositive, IsString } from "class-validator";
-import { HydratedDocument } from "mongoose";
+import { IsNumber, IsPositive, IsString, IsUUID } from "class-validator";
 
-
-export type ProductDocument = HydratedDocument<Product>;
-
-export class ProductPayload {
+export class ProductQuantityPayload {
   @IsString()
-  name: string;
-  @IsString()
-  description: string;
+  @IsUUID()
+  id: string;
   @IsNumber()
-  @IsPositive()
-  price: number;
-  @IsNumber()
-  @IsPositive()
   quantity: number;
-  @IsString()
-  category: string;
-  @IsString()
-  manufacturer: string;
   @IsString()
   supplier: string;
 }
 
-
-@Schema()
-export class Product {
-  @Prop({ required: true })
-  name: string;
-
-  @Prop({ required: true })
-  description: string;
-
-  @Prop({ required: true })
-  price: number;
-
-  @Prop({ required: true })
+export class ProductQuantity {
+  id: string;
   quantity: number;
-
-  @Prop({ required: true })
-  category: string;
-
-  @Prop({ required: true })
-  manufacturer: string;
-
-  @Prop({ required: true })
   supplier: string;
 
-  @Prop({ default: Date.now })
-  createdAt: Date;
+  constructor(payload: ProductQuantityPayload) {
+    this.id = payload.id;
+    this.supplier = payload.supplier;
+  }
+}
 
-  @Prop({ default: Date.now })
-  updatedAt: Date;
+export class ProductMetadataPayload {
+  @IsString()
+  name: string;
+  @IsString()
+  description: string;
+  @IsNumber()
+  @IsPositive()
+  price: number;
+  @IsString()
+  category: string;
+  @IsString()
+  manufacturer: string;
+}
+  
+export class ProductMetaData {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  manufacturer: string;
 
-  constructor(payload: ProductPayload) {
+  constructor(id: string, payload: ProductMetadataPayload) {
+    this.id = id;
     this.name = payload.name;
     this.description = payload.description;
     this.price = payload.price;
-    this.quantity = payload.quantity;
     this.category = payload.category;
     this.manufacturer = payload.manufacturer;
-    this.supplier = payload.supplier;
   }
-
 }
 
-export const ProductSchema = SchemaFactory.createForClass(Product);
+export class ProductDeletedPayload {
+  @IsString()
+  @IsUUID()
+  id: string;
+}
+
+export class ProductDeleted {
+  id: string;
+
+  constructor(id: string) {
+    this.id = id;
+  }
+}
