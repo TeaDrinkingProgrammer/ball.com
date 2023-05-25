@@ -16,4 +16,9 @@ export class AppController {
   cancelOrder(@Param('orderId') orderId: string) {
     return this.orderService.cancelOrder(orderId);
   }
+
+  @Get('/:orderId')
+  getOrder(@Param('orderId') orderId: string) {
+    return this.orderService.getOrder(orderId);
+  }
 }

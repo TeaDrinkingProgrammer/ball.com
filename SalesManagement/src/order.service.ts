@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Order, OrderPayload } from './models/order';
 import { Model } from 'mongoose';
@@ -14,7 +14,7 @@ export class OrderService {
     const newOrder = new Order(orderPayload);
     const createdOrder = await this.orderModel.create(newOrder);
     this.client.emit('OrderPlaced', createdOrder);
-    return { message: 'Order placed', status: 201 }
+    return { message: 'Order placed', id: createdOrder.id, status: 201 }
   }
 
   async cancelOrder(orderId: string): Promise<any> {
@@ -28,5 +28,15 @@ export class OrderService {
 
     this.client.emit('OrderCancelled', orderId);
     return { message: 'Order cancelled', status: 200 };
+  }
+
+  async getOrder(orderId: string): Promise<any> {
+    // const order = await this.orderModel.findOne({ 'productId': orderId });
+    Logger.log(orderId);
+    const order = await this.orderModel.findById(orderId);
+    if (!order) {
+      return { message: 'Order not found', status: 404 };
+    }
+    return { message: 'Order found', data: order, status: 200 };
   }
 }

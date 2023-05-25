@@ -1,13 +1,15 @@
 import { Controller, Get, Logger } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
+import { ProductService } from './product.service';
 
 @Controller()
 export class ProductController {
-  constructor() { }
+  constructor(private readonly productService: ProductService) { }
 
 
   @EventPattern('ProductCreated')
   async handleMessagePrinted(data: Record<string, unknown>) {
-    Logger.log('Product created', data);
+    let json = JSON.stringify(data);
+    this.productService.createProduct(JSON.parse(json));
   }
 }

@@ -49,7 +49,7 @@ export class Order {
     @Prop({ required: true })
     shippingAddress: string;
 
-    @Prop([{ type: String, ref: 'Product' }])
+    @Prop([{ type: String, ref: 'Product', localField: 'productIds', foreignField: 'productId' }])
     products: any[];
 
     constructor(payload: OrderPayload) {
