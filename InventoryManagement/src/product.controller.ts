@@ -34,9 +34,9 @@ export class ProductController {
     await this.productService.updateProductQuantity(productPayload);
   }
 
-  @Patch('category')
+  @Patch('info')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async updateProductCategoryREST(@Body() productPayload: ProductCategoryPayload) {
+  async updateProductInfoREST(@Body() productPayload: ProductCategoryPayload) {
     Logger.log('Product category changed request', productPayload)
     const addedEvent = await this.productService.updateProductCategory(productPayload);
     this.client.emit(addedEvent.type, addedEvent.data);

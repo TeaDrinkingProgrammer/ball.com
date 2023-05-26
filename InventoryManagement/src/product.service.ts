@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ProductDeleted, ProductCategory, ProductCategoryPayload, ProductQuantity, ProductQuantityPayload, ProductCreated, ProductCreatedPayload } from './models/product';
-import { JSONEventType, jsonEvent } from '@eventstore/db-client';
+import { EventStoreDBClient, JSONEventType, START, excludeSystemEvents, jsonEvent, streamNameFilter } from '@eventstore/db-client';
 import { client as eventStore } from './event-store';
 
 @Injectable()
@@ -68,7 +68,7 @@ export class ProductService {
   }> {
     const product = new ProductCategory(ProductPayload);
     const addedEvent = jsonEvent({
-      type: 'ProductMetaDataChanged',
+      type: 'ProductInfoChanged',
       data: {
         ...product
       },
