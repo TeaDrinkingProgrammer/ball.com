@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ProductDeleted, ProductMetaData, ProductMetadataPayload, ProductQuantity, ProductQuantityPayload } from './models/product';
+import { ProductDeleted, ProductCategory, ProductCategoryPayload, ProductQuantity, ProductQuantityPayload, ProductCreated, ProductCreatedPayload } from './models/product';
 import { JSONEventType, jsonEvent } from '@eventstore/db-client';
 import { client as eventStore } from './event-store';
 
@@ -8,7 +8,39 @@ import { client as eventStore } from './event-store';
 export class ProductService {
   constructor() { }
 
-  async createProduct(ProductPayload: ProductQuantityPayload): Promise<{
+  async createProduct(ProductPayload: ProductCreatedPayload): Promise<{
+    type: string,
+    data: ProductCreated
+  }> {
+    const productCreated = jsonEvent({
+      type: 'ProductCreated',
+      data: {
+        ...new ProductCreated(ProductPayload)
+      },
+    });
+
+    const productCategoryChanged = jsonEvent({
+      type: 'ProductCategoryChanged',
+      data: {
+        ...new ProductCategory(ProductPayload.id, ProductPayload)
+      },
+    });
+
+    const productQuantityChanged = jsonEvent({
+      type: 'ProductQuantityChanged',
+      data: {
+        ...new ProductQuantity(ProductPayload)
+      },
+    });
+  
+    Logger.log("product created", productCreated.type, {...productCreated.data});
+
+    await eventStore.appendToStream(productCategoryChanged.type, [productCategoryChanged]);
+    await eventStore.appendToStream(productQuantityChanged.type, [productQuantityChanged]);
+
+    return productCreated;
+  }
+  async updateProductQuantity(ProductPayload: ProductQuantityPayload): Promise<{
     type: string,
     data: ProductQuantity
   }> {
@@ -27,11 +59,11 @@ export class ProductService {
     return addedEvent;
   }
 
-  async updateProduct(ProductId: string, ProductPayload: ProductMetadataPayload): Promise<{
+  async updateProductCategory(ProductId: string, ProductPayload: ProductCategoryPayload): Promise<{
     type: string,
-    data: ProductMetaData
+    data: ProductCategory
   }> {
-    const product = new ProductMetaData(ProductId, ProductPayload);
+    const product = new ProductCategory(ProductId, ProductPayload);
     const addedEvent = jsonEvent({
       type: 'ProductMetaDataChanged',
       data: {

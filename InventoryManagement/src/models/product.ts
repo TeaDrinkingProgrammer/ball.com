@@ -22,7 +22,7 @@ export class ProductQuantity {
   }
 }
 
-export class ProductMetadataPayload {
+export class ProductCategoryPayload {
   @IsString()
   name: string;
   @IsString()
@@ -36,7 +36,7 @@ export class ProductMetadataPayload {
   manufacturer: string;
 }
   
-export class ProductMetaData {
+export class ProductCategory {
   id: string;
   name: string;
   description: string;
@@ -44,7 +44,7 @@ export class ProductMetaData {
   category: string;
   manufacturer: string;
 
-  constructor(id: string, payload: ProductMetadataPayload) {
+  constructor(id: string, payload: ProductCategoryPayload) {
     this.id = id;
     this.name = payload.name;
     this.description = payload.description;
@@ -65,5 +65,30 @@ export class ProductDeleted {
 
   constructor(id: string) {
     this.id = id;
+  }
+}
+
+// export type ProductCreated = ProductCategory & ProductQuantity;
+export type ProductCreatedPayload = ProductCategoryPayload & ProductQuantityPayload;
+
+export class ProductCreated {
+  id: string;
+  quantity: number;
+  supplier: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  manufacturer: string;
+
+  constructor(payload: ProductCreatedPayload) {
+    this.id = payload.id;
+    this.quantity = payload.quantity;
+    this.supplier = payload.supplier;
+    this.name = payload.name;
+    this.description = payload.description;
+    this.price = payload.price;
+    this.category = payload.category;
+    this.manufacturer = payload.manufacturer;
   }
 }
