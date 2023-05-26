@@ -17,13 +17,24 @@ export class ProductService {
         Logger.log(obj);
     }
 
-    async cancelOrder(orderId: string): Promise<any> {
-        const order = await this.productModel.findById(orderId);
-        if (!order) {
-            return { message: 'Order not found', status: 404 };
+    async handleProduct({data}: any) {
+        let product = new Product(data);
+        Logger.log(product);
+        let result = await this.productModel.findOneAndUpdate({productId: product.productId}, product);
+        if (!result) {
+            Logger.log("Product not found");
         }
-
-        await order.save();
-        return { message: 'Order cancelled', status: 200 };
+        // let obj = await this.productModel.create(product);
+        // Logger.log(obj);
     }
+
+    // async cancelOrder(orderId: string): Promise<any> {
+    //     const order = await this.productModel.findById(orderId);
+    //     if (!order) {
+    //         return { message: 'Order not found', status: 404 };
+    //     }
+
+    //     await order.save();
+    //     return { message: 'Order cancelled', status: 200 };
+    // }
 }

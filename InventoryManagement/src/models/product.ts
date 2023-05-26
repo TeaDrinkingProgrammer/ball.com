@@ -22,11 +22,7 @@ export class ProductQuantity {
   }
 }
 
-<<<<<<< HEAD
-export class ProductMetadataPayload {
-=======
 export class ProductCategoryPayload {
->>>>>>> feature/inventorymanagement
   @IsString()
   name: string;
   @IsString()
@@ -39,12 +35,8 @@ export class ProductCategoryPayload {
   @IsString()
   manufacturer: string;
 }
-  
-<<<<<<< HEAD
-export class ProductMetaData {
-=======
+
 export class ProductCategory {
->>>>>>> feature/inventorymanagement
   id: string;
   name: string;
   description: string;
@@ -52,11 +44,7 @@ export class ProductCategory {
   category: string;
   manufacturer: string;
 
-<<<<<<< HEAD
-  constructor(id: string, payload: ProductMetadataPayload) {
-=======
   constructor(id: string, payload: ProductCategoryPayload) {
->>>>>>> feature/inventorymanagement
     this.id = id;
     this.name = payload.name;
     this.description = payload.description;
@@ -78,8 +66,6 @@ export class ProductDeleted {
   constructor(id: string) {
     this.id = id;
   }
-<<<<<<< HEAD
-=======
 }
 
 // export type ProductCreated = ProductCategory & ProductQuantity;
@@ -105,5 +91,4 @@ export class ProductCreated {
     this.category = payload.category;
     this.manufacturer = payload.manufacturer;
   }
->>>>>>> feature/inventorymanagement
 }
