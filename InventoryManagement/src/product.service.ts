@@ -1,14 +1,17 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { ProductDeleted, ProductMetaData, ProductMetadataPayload, ProductQuantity, ProductQuantityPayload } from './models/product';
-import { jsonEvent } from '@eventstore/db-client';
+import { JSONEventType, jsonEvent } from '@eventstore/db-client';
 import { client as eventStore } from './event-store';
 
 @Injectable()
 export class ProductService {
   constructor() { }
 
-  async createProduct(ProductPayload: ProductQuantityPayload): Promise<any> {
+  async createProduct(ProductPayload: ProductQuantityPayload): Promise<{
+    type: string,
+    data: ProductQuantity
+  }> {
     const product = new ProductQuantity(ProductPayload);
     const addedEvent = jsonEvent({
       type: 'ProductQuantityChanged',
@@ -24,7 +27,10 @@ export class ProductService {
     return addedEvent;
   }
 
-  async updateProduct(ProductId: string, ProductPayload: ProductMetadataPayload): Promise<any> {
+  async updateProduct(ProductId: string, ProductPayload: ProductMetadataPayload): Promise<{
+    type: string,
+    data: ProductMetaData
+  }> {
     const product = new ProductMetaData(ProductId, ProductPayload);
     const addedEvent = jsonEvent({
       type: 'ProductMetaDataChanged',
@@ -36,10 +42,13 @@ export class ProductService {
 
     Logger.log('Product updated');
 
-    return { message: 'Product metadata updated', status: 200 };
+    return addedEvent;
   }
 
-  async deleteProduct(ProductId: string): Promise<any> {
+async deleteProduct(ProductId: string): Promise<{
+  type: string,
+  data: ProductDeleted
+}> {
     const product = new ProductDeleted(ProductId);
     const addedEvent = jsonEvent({
       type: 'ProductDeleted',
@@ -51,7 +60,7 @@ export class ProductService {
 
     Logger.log('Product deleted');
     
-    return { message: 'Product deleted', status: 200 };
+    return addedEvent;
   }
 
 }
