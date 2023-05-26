@@ -5,7 +5,7 @@ import { ClientProxy, EventPattern } from "@nestjs/microservices";
 
 
 @Controller('product')
-export class AppController {
+export class ProductController {
   constructor(private readonly productService: ProductService,
     @Inject('SERVICE') private readonly client: ClientProxy) { }
 
