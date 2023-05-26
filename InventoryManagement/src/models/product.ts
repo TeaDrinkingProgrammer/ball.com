@@ -24,6 +24,9 @@ export class ProductQuantity {
 
 export class ProductCategoryPayload {
   @IsString()
+  @IsUUID()
+  id: string;
+  @IsString()
   name: string;
   @IsString()
   description: string;
@@ -44,8 +47,8 @@ export class ProductCategory {
   category: string;
   manufacturer: string;
 
-  constructor(id: string, payload: ProductCategoryPayload) {
-    this.id = id;
+  constructor(payload: ProductCategoryPayload) {
+    this.id = payload.id;
     this.name = payload.name;
     this.description = payload.description;
     this.price = payload.price;

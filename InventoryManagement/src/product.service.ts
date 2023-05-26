@@ -25,7 +25,7 @@ export class ProductService {
     const productCategoryChanged = jsonEvent({
       type: 'ProductCategoryChanged',
       data: {
-        ...new ProductCategory(ProductPayload.id, ProductPayload)
+        ...new ProductCategory(ProductPayload)
       },
     });
 
@@ -62,11 +62,11 @@ export class ProductService {
     return addedEvent;
   }
 
-  async updateProductCategory(ProductId: string, ProductPayload: ProductCategoryPayload): Promise<{
+  async updateProductCategory(ProductPayload: ProductCategoryPayload): Promise<{
     type: string,
     data: ProductCategory
   }> {
-    const product = new ProductCategory(ProductId, ProductPayload);
+    const product = new ProductCategory(ProductPayload);
     const addedEvent = jsonEvent({
       type: 'ProductMetaDataChanged',
       data: {
