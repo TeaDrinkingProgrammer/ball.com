@@ -17,6 +17,7 @@ export class ProductQuantity {
 
   constructor(payload: ProductQuantityPayload) {
     this.id = payload.id;
+    this.quantity = payload.quantity;
     this.supplier = payload.supplier;
   }
 }

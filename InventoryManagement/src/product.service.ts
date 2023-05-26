@@ -6,7 +6,7 @@ import { client as eventStore } from './event-store';
 
 @Injectable()
 export class ProductService {
-  constructor(@Inject('SERVICE') private readonly client: ClientProxy) { }
+  constructor() { }
 
   async createProduct(ProductPayload: ProductQuantityPayload): Promise<any> {
     const product = new ProductQuantity(ProductPayload);
@@ -20,10 +20,8 @@ export class ProductService {
     Logger.log("product create", addedEvent.type, {...product});
 
     await eventStore.appendToStream(addedEvent.type, [addedEvent]);
-    
-    this.client.emit(addedEvent.type, product);
 
-    return { message: 'Product quantity updated', status: 201 }
+    return addedEvent;
   }
 
   async updateProduct(ProductId: string, ProductPayload: ProductMetadataPayload): Promise<any> {
@@ -35,10 +33,9 @@ export class ProductService {
       },
     });
     await eventStore.appendToStream(addedEvent.type, [addedEvent]);
-    
-    this.client.emit(addedEvent.type, addedEvent.data);
 
     Logger.log('Product updated');
+
     return { message: 'Product metadata updated', status: 200 };
   }
 
@@ -51,10 +48,9 @@ export class ProductService {
       },
     });
     await eventStore.appendToStream(addedEvent.type, [addedEvent]);
-    
-    this.client.emit(addedEvent.type, addedEvent.data);
 
     Logger.log('Product deleted');
+    
     return { message: 'Product deleted', status: 200 };
   }
 
