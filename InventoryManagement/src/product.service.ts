@@ -12,6 +12,9 @@ export class ProductService {
     type: string,
     data: ProductCreated
   }> {
+    Logger.log("product created payload:", {...ProductPayload});
+    Logger.log("product created class:", {...new ProductCreated(ProductPayload)});
+
     const productCreated = jsonEvent({
       type: 'ProductCreated',
       data: {
@@ -32,7 +35,7 @@ export class ProductService {
         ...new ProductQuantity(ProductPayload)
       },
     });
-
+  
     Logger.log("product created", productCreated.type, {...productCreated.data});
 
     await eventStore.appendToStream(productCategoryChanged.type, [productCategoryChanged]);
@@ -51,7 +54,7 @@ export class ProductService {
         ...product
       },
     });
-
+  
     Logger.log("product create", addedEvent.type, {...product});
 
     await eventStore.appendToStream(addedEvent.type, [addedEvent]);
@@ -91,7 +94,7 @@ async deleteProduct(ProductId: string): Promise<{
     await eventStore.appendToStream(addedEvent.type, [addedEvent]);
 
     Logger.log('Product deleted');
-
+    
     return addedEvent;
   }
 
