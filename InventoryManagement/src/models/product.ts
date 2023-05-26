@@ -69,8 +69,27 @@ export class ProductDeleted {
 }
 
 // export type ProductCreated = ProductCategory & ProductQuantity;
-export type ProductCreatedPayload = ProductCategoryPayload & ProductQuantityPayload;
-
+// export type ProductCreatedPayload = ProductCategoryPayload & ProductQuantityPayload;
+export class ProductCreatedPayload {
+  @IsString()
+  @IsUUID()
+  id: string;
+  @IsNumber()
+  quantity: number;
+  @IsString()
+  supplier: string;
+  @IsString()
+  name: string;
+  @IsString()
+  description: string;
+  @IsNumber()
+  @IsPositive()
+  price: number;
+  @IsString()
+  category: string;
+  @IsString()
+  manufacturer: string;
+}
 export class ProductCreated {
   id: string;
   quantity: number;
