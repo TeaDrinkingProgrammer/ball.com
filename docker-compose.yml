@@ -69,7 +69,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      eventstoredbURL: 'eventstoredb'
+      mongodbURL: 'mongo'
       rabbitmqURL: 'rabbitmq'
     depends_on:
       - rabbitmq
@@ -80,6 +80,9 @@ services:
       target: development
     ports:
       - 3001:3001
+    environment:
+      eventstoredbURL: 'eventstoredb'
+      rabbitmqURL: 'rabbitmq'
     depends_on:
       - rabbitmq
       - eventstoredb
