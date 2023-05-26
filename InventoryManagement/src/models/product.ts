@@ -6,19 +6,15 @@ export class ProductQuantityPayload {
   id: string;
   @IsNumber()
   quantity: number;
-  @IsString()
-  supplier: string;
 }
 
 export class ProductQuantity {
   id: string;
   quantity: number;
-  supplier: string;
 
   constructor(payload: ProductQuantityPayload) {
     this.id = payload.id;
     this.quantity = payload.quantity;
-    this.supplier = payload.supplier;
   }
 }
 
