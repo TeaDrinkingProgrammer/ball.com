@@ -11,7 +11,12 @@ export class ProductService {
 
     async createProduct(data: any): Promise<any> {
         let product = new Product(data);
-        await this.productModel.create(product);
+        if (await this.productModel.findOne({ productId: product.productId })) {
+            Logger.log("Product already exists. updating instead");
+            await this.productModel.findOneAndUpdate({ productId: product.productId }, product);
+        } else {
+            await this.productModel.create(product);
+        }
     }
 
     async updateProduct({ data }: any) {
