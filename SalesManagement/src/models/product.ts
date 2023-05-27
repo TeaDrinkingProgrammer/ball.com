@@ -28,7 +28,7 @@ export class Product {
   manufacturer: string;
 
   constructor(data: any) {
-    this.productId = data._id;
+    this.productId = data.id;
     this.name = data.name;
     this.description = data.description;
     this.price = data.price;

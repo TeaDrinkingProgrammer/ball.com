@@ -1,6 +1,7 @@
 import { ArrayMinSize, IsArray, IsNumber, IsString } from "class-validator";
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Product, ProductDocument } from "./product";
 
 enum Status {
     made = "made",
@@ -49,18 +50,17 @@ export class Order {
     @Prop({ required: true })
     shippingAddress: string;
 
-    @Prop([{ type: String, ref: 'Product', localField: 'productIds', foreignField: 'productId' }])
-    products: any[];
+    // @Prop([{ required: true }])
+    @Prop()
+    products: Product[];
 
-    constructor(payload: OrderPayload) {
-        this.customerId = payload.customerId;
-        this.status = Status.made;
-        this.totalAmount = payload.totalAmount;
-        this.paymentMethod = payload.paymentMethod;
-        this.shippingAddress = payload.shippingAddress;
-        this.products = payload.products;
+    constructor(data: OrderPayload, products: Product[]) {
+        this.customerId = data.customerId;
+        this.totalAmount = data.totalAmount;
+        this.paymentMethod = data.paymentMethod;
+        this.shippingAddress = data.shippingAddress;
+        this.products = products;
     }
-
 }
 
 

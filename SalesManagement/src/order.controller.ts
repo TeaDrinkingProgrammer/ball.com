@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { OrderPayload } from './models/order';
 import { OrderService } from './order.service';
 
@@ -20,5 +20,10 @@ export class AppController {
   @Get('/:orderId')
   getOrder(@Param('orderId') orderId: string) {
     return this.orderService.getOrder(orderId);
+  }
+
+  @Get('')
+  getOrders() {
+    return this.orderService.getOrders();
   }
 }
