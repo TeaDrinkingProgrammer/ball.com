@@ -19,6 +19,9 @@ export class OrderService {
       .select('-__v')
       .select('-_id')
       .exec();
+    if (products.length !== productIds.length) {
+      return { message: 'Product not found', status: 404 };
+    }
     let order = new Order(orderPayload, products);
     const createdOrder = await this.orderModel.create(order);
     this.client.emit('OrderPlaced', createdOrder);
@@ -40,8 +43,10 @@ export class OrderService {
 
   async getOrder(orderId: string): Promise<any> {
     Logger.log(orderId);
-    const order = await this.orderModel.findById(orderId).select('-__v');
-    if (!order) {
+    let order;
+    try {
+      order = await this.orderModel.findById(orderId).select('-__v');
+    } catch (e) {
       return { message: 'Order not found', status: 404 };
     }
     return { message: 'Order found', data: order, status: 200 };
