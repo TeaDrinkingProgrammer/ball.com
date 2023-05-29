@@ -1,4 +1,6 @@
 import { IsNumber, IsPositive, IsString, IsUUID } from "class-validator";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { HydratedDocument } from "mongoose";
 
 export class ProductStockPayload {
   @IsString()
@@ -67,7 +69,7 @@ export class ProductDeleted {
   }
 }
 
-export class ProductCreatedPayload {
+export class ProductPayload {
   @IsString()
   @IsUUID()
   id: string;
@@ -87,17 +89,34 @@ export class ProductCreatedPayload {
   @IsString()
   manufacturer: string;
 }
-export class ProductCreated {
+
+@Schema()
+export class Product {
+  @Prop({ unique: true, index: true })
   id: string;
+
+  @Prop({ required: true })
   quantity: number;
+
+  @Prop({ required: true })
   supplier: string;
+
+  @Prop({ required: true })
   name: string;
+
+  @Prop({ required: true })
   description: string;
+
+  @Prop({ required: true })
   price: number;
+
+  @Prop({ required: true })
   category: string;
+  
+  @Prop({ required: true })
   manufacturer: string;
 
-  constructor(payload: ProductCreatedPayload) {
+  constructor(payload: ProductPayload) {
     this.id = payload.id;
     this.quantity = payload.quantity;
     this.supplier = payload.supplier;
@@ -108,3 +127,6 @@ export class ProductCreated {
     this.manufacturer = payload.manufacturer;
   }
 }
+
+export type ProductDocument = HydratedDocument<Product>;
+export const ProductSchema = SchemaFactory.createForClass(Product);

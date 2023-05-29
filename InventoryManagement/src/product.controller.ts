@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Inject, Logger, Param, Patch, Post, Put, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ProductService } from "./product.service";
-import { ProductInfo, ProductInfoPayload, ProductCreated, ProductCreatedPayload, ProductStockPayload as ProductStockPayload } from "./models/product";
+import { ProductInfo, ProductInfoPayload, Product, ProductPayload, ProductStockPayload as ProductStockPayload } from "./models/product";
 import { ClientProxy, EventPattern } from "@nestjs/microservices";
 
 
@@ -11,7 +11,7 @@ export class ProductController {
 
   @Post()
   @UsePipes(new ValidationPipe({ transform: true }))
-  async createProductREST(@Body() productPayload: ProductCreatedPayload) {
+  async createProductREST(@Body() productPayload: ProductPayload) {
     Logger.log('Product created', productPayload);
     const addedEvent = await this.productService.createProduct(productPayload);
     this.client.emit(addedEvent.type, addedEvent.data);
