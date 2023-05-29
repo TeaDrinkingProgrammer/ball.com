@@ -17,7 +17,7 @@ export class Product {
 
   @Prop({ required: true })
   price: number;
-
+  // TODO rename to stock
   @Prop({ required: true })
   quantity: number;
 

@@ -1,7 +1,8 @@
-import { ArrayMinSize, IsArray, IsNumber, IsString } from "class-validator";
+import { ArrayMinSize, IsArray, IsNumber, IsString, Max, Min, ValidateNested, ValidationArguments, ValidationOptions, registerDecorator } from "class-validator";
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Product, ProductDocument } from "./product";
+import { Type } from "class-transformer";
 
 enum Status {
     made = "made",
@@ -22,7 +23,19 @@ export class OrderPayload {
     shippingAddress: string;
     @IsArray()
     @ArrayMinSize(1)
-    products: string[];
+    @Type(() => OrderProduct)
+    @ValidateNested({ each: true })
+    @IsArrayUnique('productId')
+    products: OrderProduct[];
+}
+
+class OrderProduct {
+    @IsString()
+    productId: string;
+    @IsNumber()
+    @Max(20)
+    @Min(1)
+    quantity: number;
 }
 
 export type OrderDocument = HydratedDocument<Order>;
@@ -50,11 +63,14 @@ export class Order {
     @Prop({ required: true })
     shippingAddress: string;
 
-    // @Prop([{ required: true }])
     @Prop()
-    products: Product[];
+    products:
+        {
+            product: Product,
+            quantity: number
+        }[]
 
-    constructor(data: OrderPayload, products: Product[]) {
+    constructor(data: OrderPayload, products: { product: Product, quantity: number }[]) {
         this.customerId = data.customerId;
         this.totalAmount = data.totalAmount;
         this.paymentMethod = data.paymentMethod;
@@ -65,3 +81,37 @@ export class Order {
 
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
+
+
+function IsArrayUnique(property: string, validationOptions?: ValidationOptions): PropertyDecorator {
+    return function (target: Object, propertyName: string | symbol): void {
+        registerDecorator({
+            name: 'isArrayUnique',
+            target: target.constructor,
+            propertyName: propertyName.toString(),
+            options: validationOptions,
+            validator: {
+                validate(value: any): boolean {
+                    if (!Array.isArray(value)) {
+                        return false;
+                    }
+                    const uniqueValues = new Set();
+                    for (const item of value) {
+                        if (item && item[property]) {
+                            const itemValue = item[property];
+                            if (uniqueValues.has(itemValue)) {
+                                return false;
+                            }
+                            uniqueValues.add(itemValue);
+                        }
+                    }
+                    return true;
+                },
+                defaultMessage(args: ValidationArguments): string {
+                    const property = args.property;
+                    return `${property} array must have unique ${property} values`;
+                },
+            },
+        });
+    };
+}

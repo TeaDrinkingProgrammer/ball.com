@@ -13,16 +13,30 @@ export class OrderService {
     @InjectModel(Product.name) private readonly productModel: Model<Product>) { }
 
   async createOrder(orderPayload: OrderPayload): Promise<any> {
-    let productIds = orderPayload.products;
+    let totalQuantity = orderPayload.products.reduce((acc, product) => acc + product.quantity, 0);
+    if (totalQuantity > 20) {
+      return { message: 'Quantity limit exceeded', status: 400 };
+    }
+    let productIds = orderPayload.products.map(product => product.productId);
+    console.log(productIds);
     let products: Product[] = await this.productModel.find({ productId: { $in: productIds } })
       .lean()
       .select('-__v')
       .select('-_id')
       .exec();
+
     if (products.length !== productIds.length) {
       return { message: 'Product not found', status: 404 };
     }
-    let order = new Order(orderPayload, products);
+
+    let productList: {product: Product, quantity: number}[] = [];
+    for (let product of products) {
+        let quantity = orderPayload.products.find(p => p.productId === product.productId).quantity;
+        productList.push({product, quantity});
+    }
+
+
+    let order = new Order(orderPayload, productList);
     const createdOrder = await this.orderModel.create(order);
     this.client.emit('OrderPlaced', createdOrder);
     return { message: 'Order placed', id: createdOrder.id, status: 201 }
