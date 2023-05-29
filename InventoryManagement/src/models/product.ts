@@ -34,7 +34,7 @@ export class ProductInfoPayload {
   @IsString()
   manufacturer: string;
 }
-  
+
 export class ProductInfo {
   id: string;
   name: string;

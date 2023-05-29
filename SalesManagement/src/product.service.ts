@@ -30,13 +30,20 @@ export class ProductService {
         }
     }
 
-    async updateQuantity(data: any) {
-        let result = await this.productModel.findOneAndUpdate({ productId: data.id }, { quantity: data.quantity });
-        if (!result) {
+    async updateStock(data: any) {
+        const product = await this.productModel.findOne({ productId: data.id });
+
+        if (!product) {
             Logger.log("Product not found");
-        } else {
-            Logger.log("Product quantity updated");
+            return;
         }
+
+        const updatedStock = product.stock + data.quantity;
+
+        product.stock = updatedStock;
+        await product.save();
+
+        Logger.log("Product quantity updated");
     }
 
     async updateInfo(data: any) {
@@ -47,7 +54,7 @@ export class ProductService {
             ...data
         }
         console.log(product);
-        let result = await this.productModel.findOneAndUpdate({ productId: product.productId }, { quantity: product.quantity });
+        let result = await this.productModel.findOneAndUpdate({ productId: product.productId }, product);
         if (!result) {
             Logger.log("Product not found");
         } else {

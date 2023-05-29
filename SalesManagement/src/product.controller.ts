@@ -14,11 +14,11 @@ export class ProductController {
     this.productService.createProduct(JSON.parse(json));
   }
 
-  @EventPattern('ProductQuantityChanged')
+  @EventPattern('ProductStockChanged')
   async handleProductQuantityChanged(data: Record<string, unknown>) {
-    console.log('quantity ', data);
+    console.log('stock ', data);
     let json = JSON.stringify(data);
-    this.productService.updateQuantity(JSON.parse(json));
+    this.productService.updateStock(JSON.parse(json));
   }
 
 
