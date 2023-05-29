@@ -9,32 +9,49 @@ export class ProductService {
     constructor(
         @InjectModel(Product.name) private readonly productModel: Model<Product>,) { }
 
-    async createProduct({ data }: any): Promise<any> {
-        Logger.log(data);
+    async createProduct(data: any): Promise<any> {
         let product = new Product(data);
-        Logger.log(product);
-        let obj = await this.productModel.create(product);
-        Logger.log(obj);
+        if (await this.productModel.findOne({ productId: product.productId })) {
+            Logger.log("Product already exists. updating instead");
+            await this.productModel.findOneAndUpdate({ productId: product.productId }, product);
+        } else {
+            await this.productModel.create(product);
+        }
     }
 
-    async handleProduct({data}: any) {
+    async updateProduct({ data }: any) {
         let product = new Product(data);
         Logger.log(product);
-        let result = await this.productModel.findOneAndUpdate({productId: product.productId}, product);
+        let result = await this.productModel.findOneAndUpdate({ productId: product.productId }, product);
         if (!result) {
             Logger.log("Product not found");
+        } else {
+            Logger.log("Product updated");
         }
-        // let obj = await this.productModel.create(product);
-        // Logger.log(obj);
     }
 
-    // async cancelOrder(orderId: string): Promise<any> {
-    //     const order = await this.productModel.findById(orderId);
-    //     if (!order) {
-    //         return { message: 'Order not found', status: 404 };
-    //     }
+    async updateQuantity(data: any) {
+        let result = await this.productModel.findOneAndUpdate({ productId: data.id }, { quantity: data.quantity });
+        if (!result) {
+            Logger.log("Product not found");
+        } else {
+            Logger.log("Product quantity updated");
+        }
+    }
 
-    //     await order.save();
-    //     return { message: 'Order cancelled', status: 200 };
-    // }
+    async updateInfo(data: any) {
+        let productId = data.id;
+        delete data.id;
+        let product = {
+            productId,
+            ...data
+        }
+        console.log(product);
+        let result = await this.productModel.findOneAndUpdate({ productId: product.productId }, { quantity: product.quantity });
+        if (!result) {
+            Logger.log("Product not found");
+        } else {
+            Logger.log("Product info updated");
+        }
+    }
 }
