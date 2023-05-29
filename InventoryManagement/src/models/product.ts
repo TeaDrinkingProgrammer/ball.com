@@ -1,6 +1,6 @@
 import { IsNumber, IsPositive, IsString, IsUUID } from "class-validator";
 
-export class ProductQuantityPayload {
+export class ProductStockPayload {
   @IsString()
   @IsUUID()
   id: string;
@@ -8,17 +8,17 @@ export class ProductQuantityPayload {
   quantity: number;
 }
 
-export class ProductQuantity {
+export class ProductStock {
   id: string;
   quantity: number;
 
-  constructor(payload: ProductQuantityPayload) {
+  constructor(payload: ProductStockPayload) {
     this.id = payload.id;
     this.quantity = payload.quantity;
   }
 }
 
-export class ProductCategoryPayload {
+export class ProductInfoPayload {
   @IsString()
   @IsUUID()
   id: string;
@@ -35,7 +35,7 @@ export class ProductCategoryPayload {
   manufacturer: string;
 }
   
-export class ProductCategory {
+export class ProductInfo {
   id: string;
   name: string;
   description: string;
@@ -43,7 +43,7 @@ export class ProductCategory {
   category: string;
   manufacturer: string;
 
-  constructor(payload: ProductCategoryPayload) {
+  constructor(payload: ProductInfoPayload) {
     this.id = payload.id;
     this.name = payload.name;
     this.description = payload.description;
@@ -67,8 +67,6 @@ export class ProductDeleted {
   }
 }
 
-// export type ProductCreated = ProductCategory & ProductQuantity;
-// export type ProductCreatedPayload = ProductCategoryPayload & ProductQuantityPayload;
 export class ProductCreatedPayload {
   @IsString()
   @IsUUID()

@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { ProductDeleted, ProductCategory, ProductCategoryPayload, ProductQuantity, ProductQuantityPayload, ProductCreated, ProductCreatedPayload } from './models/product';
-import { EventStoreDBClient, JSONEventType, START, excludeSystemEvents, jsonEvent, streamNameFilter } from '@eventstore/db-client';
+import { ProductDeleted, ProductInfo, ProductInfoPayload, ProductStock, ProductStockPayload, ProductCreated, ProductCreatedPayload } from './models/product';
+import { EventStoreDBClient, FORWARDS, JSONEventType, START, eventTypeFilter, excludeSystemEvents, jsonEvent, streamNameFilter } from '@eventstore/db-client';
 import { client as eventStore } from './event-store';
 
 @Injectable()
@@ -25,48 +25,62 @@ export class ProductService {
     const productCategoryChanged = jsonEvent({
       type: 'ProductCategoryChanged',
       data: {
-        ...new ProductCategory(ProductPayload)
+        ...new ProductInfo(ProductPayload)
       },
     });
 
-    const productQuantityChanged = jsonEvent({
-      type: 'ProductQuantityChanged',
+    const productStockChanged = jsonEvent({
+      type: 'ProductStockChanged',
       data: {
-        ...new ProductQuantity(ProductPayload)
+        ...new ProductStock(ProductPayload)
       },
     });
   
     Logger.log("product created", productCreated.type, {...productCreated.data});
 
     await eventStore.appendToStream(productCategoryChanged.type, [productCategoryChanged]);
-    await eventStore.appendToStream(productQuantityChanged.type, [productQuantityChanged]);
+    await eventStore.appendToStream(productStockChanged.type, [productStockChanged]);
 
     return productCreated;
   }
-  async updateProductQuantity(ProductPayload: ProductQuantityPayload): Promise<{
+  async updateProductStock(ProductPayload: ProductStockPayload): Promise<{
     type: string,
-    data: ProductQuantity
+    data: ProductStock
   }> {
-    const product = new ProductQuantity(ProductPayload);
+    const product = new ProductStock(ProductPayload);
     const addedEvent = jsonEvent({
-      type: 'ProductQuantityChanged',
+      type: 'ProductStockChanged',
       data: {
         ...product
       },
     });
-  
-    Logger.log("product create", addedEvent.type, {...product});
+    type ProductInfoUpdatedEvent = JSONEventType<"ProductInfoChanged", {
+      id: string;
+    }>
+    // Handle error when eventstream does not exist
+    const events = eventStore.readStream<ProductInfoUpdatedEvent>("ProductStockChanged", {
+      fromRevision: START,
+      direction: FORWARDS,
+    });
 
-    await eventStore.appendToStream(addedEvent.type, [addedEvent]);
+    for await (const { event } of events) {
+      if (event.data.id === product.id) {
+        Logger.log("product create", addedEvent.type, {...product});
 
-    return addedEvent;
+        await eventStore.appendToStream(addedEvent.type, [addedEvent]);
+        
+        return addedEvent;
+      }
+    }
+
+    return Promise.reject("Cannot add product stock when product does not exist");
   }
 
-  async updateProductCategory(ProductPayload: ProductCategoryPayload): Promise<{
+  async updateProductCategory(ProductPayload: ProductInfoPayload): Promise<{
     type: string,
-    data: ProductCategory
+    data: ProductInfo
   }> {
-    const product = new ProductCategory(ProductPayload);
+    const product = new ProductInfo(ProductPayload);
     const addedEvent = jsonEvent({
       type: 'ProductInfoChanged',
       data: {
