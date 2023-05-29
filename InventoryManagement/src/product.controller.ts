@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Inject, Logger, Param, Patch, Post, Put, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ProductService } from "./product.service";
-import { ProductCategory, ProductCategoryPayload, ProductCreated, ProductCreatedPayload, ProductQuantityPayload } from "./models/product";
+import { ProductInfo, ProductInfoPayload, ProductCreated, ProductCreatedPayload, ProductStockPayload as ProductStockPayload } from "./models/product";
 import { ClientProxy, EventPattern } from "@nestjs/microservices";
 
 
@@ -15,28 +15,33 @@ export class ProductController {
     Logger.log('Product created', productPayload);
     const addedEvent = await this.productService.createProduct(productPayload);
     this.client.emit(addedEvent.type, addedEvent.data);
-    return { message: 'Product quantity updated', status: 201 };
+    return { message: 'Product stock updated', status: 201 };
   }
 
-  @Patch('quantity')
+  @Patch('stock')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async updateProductREST(@Body() productPayload: ProductQuantityPayload) {
+  async updateProductStockREST(@Body() productPayload: ProductStockPayload) {
     Logger.log('Product created', productPayload);
-    const addedEvent = await this.productService.updateProductQuantity(productPayload);
-    this.client.emit(addedEvent.type, addedEvent.data);
-    return { message: 'Product quantity updated', status: 201 };
+    try {
+      const addedEvent = await this.productService.updateProductStock(productPayload);
+      this.client.emit(addedEvent.type, addedEvent.data);
+    } catch (error) {
+      return { message: error, status: 400 };
+    }
+
+    return { message: 'Product stock updated', status: 201 };
   }
 
-  @EventPattern('ProductQuantityChanged')
+  @EventPattern('ProductStockChanged')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async updateProductEvent( @Body() productPayload: ProductQuantityPayload) {
+  async updateProductEvent( @Body() productPayload: ProductStockPayload) {
     Logger.log('Product created', productPayload);
-    await this.productService.updateProductQuantity(productPayload);
+    await this.productService.updateProductStock(productPayload);
   }
 
   @Patch('info')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async updateProductInfoREST(@Body() productPayload: ProductCategoryPayload) {
+  async updateProductInfoREST(@Body() productPayload: ProductInfoPayload) {
     Logger.log('Product category changed request', productPayload)
     const addedEvent = await this.productService.updateProductCategory(productPayload);
     this.client.emit(addedEvent.type, addedEvent.data);

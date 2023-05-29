@@ -19,7 +19,7 @@ export class Product {
   price: number;
   // TODO rename to stock
   @Prop({ required: true })
-  quantity: number;
+  stock: number;
 
   @Prop({ required: true })
   category: string;
@@ -32,7 +32,7 @@ export class Product {
     this.name = data.name;
     this.description = data.description;
     this.price = data.price;
-    this.quantity = data.quantity;
+    this.stock = data.quantity;
     this.category = data.category;
     this.manufacturer = data.manufacturer;
   }
