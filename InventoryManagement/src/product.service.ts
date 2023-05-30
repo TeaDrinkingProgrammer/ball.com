@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ProductDeleted, ProductInfo, ProductInfoPayload, ProductStock, ProductStockPayload, Product, ProductPayload } from './models/product';
-import { jsonEvent } from '@eventstore/db-client';
+import { BACKWARDS, END, FORWARDS, START, jsonEvent } from '@eventstore/db-client';
 import { client as eventStore } from './event-store';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -56,6 +56,31 @@ export class ProductService {
       Logger.error(error);
       return Promise.reject({ status: 500, message: "Internal Server Error" })
     }
+  }
+
+  async getProductHistory() {
+    const events = eventStore.readAll({
+      direction: BACKWARDS,
+      fromPosition: END,
+      maxCount: 1000
+    });
+    let returnedEvents = [];
+
+    for await (const resolvedEvent of events) {
+      //Skip system events
+      if (resolvedEvent.event?.type.at(0) === "$") {
+        continue;
+      }
+      returnedEvents.push(
+        {
+          id: resolvedEvent.event?.id,
+          type: resolvedEvent.event?.type,
+          data: resolvedEvent.event?.data,
+          created: resolvedEvent.event?.created,
+        }
+        );
+    }
+    return returnedEvents
   }
 
   async updateProductStock(ProductPayload: ProductStockPayload): Promise<{

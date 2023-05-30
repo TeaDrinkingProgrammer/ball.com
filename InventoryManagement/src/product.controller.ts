@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Inject, Logger, Param, Patch, Post, Put, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Logger, Param, Patch, Post, Put, UseInterceptors, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { ProductInfo, ProductInfoPayload, Product, ProductPayload, ProductStockPayload as ProductStockPayload } from "./models/product";
 import { ClientProxy, EventPattern } from "@nestjs/microservices";
+import { BigintInterceptor } from "./bigint_interceptor";
 
 
 @Controller('product')
+@UseInterceptors(BigintInterceptor)
 export class ProductController {
   constructor(private readonly productService: ProductService,
     @Inject('SERVICE') private readonly client: ClientProxy) { }
@@ -23,6 +25,17 @@ export class ProductController {
     }
     
     return {message: "Product created",id: id, status: 201 };
+  }
+  @Get("/events")
+  async getProductHistory() {
+    let events;
+    try {
+      events = await this.productService.getProductHistory();
+    } catch (error) {
+      return { message: error, status: 400 };
+    }
+    
+    return {message: "Events retrieved",events: events, status: 201 };
   }
 
   @Patch('stock')
