@@ -75,6 +75,18 @@ services:
       - rabbitmq
       - eventstore
 
+  customer_management_service:
+    image: ${DOCKER_REGISTRY-}customermanagement
+    build:
+      context: ./CustomerManagement
+      dockerfile: ./Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - 80:80
+    depends_on:
+      - rabbitmq
+
 volumes:
     rabbitmq_data:
     rabbitmq_log:
