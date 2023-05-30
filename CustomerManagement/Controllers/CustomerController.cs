@@ -1,10 +1,10 @@
-using CustomerManagement.Events;
+using CustomerManagement.EventModels;
 using CustomerManagement.Mappers;
 using CustomerManagement.Messaging;
 using CustomerManagement.Models;
-using CustomerManagement.RequestModels;
+using CustomerManagement.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace CustomerManagement.Controllers;
 
@@ -14,36 +14,89 @@ public class CustomerController : ControllerBase
 {
 
     private readonly ILogger<CustomerController> _logger;
-    private IMessagePublisher _messagePublisher;
+    private readonly IMessagePublisher _messagePublisher;
+    private readonly ICustomerRepoService _customerRepoService;
 
-    public CustomerController(ILogger<CustomerController> logger, IMessagePublisher messagePublisher)
+    public CustomerController(ILogger<CustomerController> logger, IMessagePublisher messagePublisher, ICustomerRepoService customerRepoService)
     {
         _logger = logger;
         _messagePublisher = messagePublisher;
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetAllAsync()
-    {
-        return Ok();
-        //return Ok(await _dbContext.Customers.ToListAsync());
-    }
-
-    [HttpGet]
-    [Route("{customerId}", Name = "GetByCustomerId")]
-    public async Task<IActionResult> GetByCustomerId(string customerId)
-    {
-        var customer = new Customer();
-        //var customer = await _dbContext.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
-        if (customer == null)
-        {
-            return NotFound();
-        }
-        return Ok(customer);
+        _customerRepoService = customerRepoService;
     }
 
     /// <summary>
-    /// Creates a customer.
+    /// Gets customers
+    /// </summary>
+    /// <returns>A list of customers</returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     No request body needed
+    ///
+    /// </remarks>
+    /// <response code="200">If succeeded, returns all items</response>
+    /// <response code="500">If the server is non-responsive</response>
+    [HttpGet]
+    public async Task<IActionResult> GetAllAsync()
+    {
+        try
+        {
+            return Ok(await _customerRepoService.FindAll());
+        }
+        catch (DbUpdateException e)
+        {
+            ModelState.AddModelError("", "Unable to get items. " +
+                "Try again, and if the problem persists " +
+                "see your system administrator.");
+            Console.WriteLine(e.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Gets a customer
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <returns>A customer</returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     GET /customer
+    ///     {
+    ///        "id": 1
+    ///     }
+    ///
+    /// </remarks>
+    /// <response code="200">If succeeded, returns item</response>
+    /// <response code="400">If the item is not found</response>
+    /// <response code="500">If the server is non-responsive</response>
+    [HttpGet]
+    [Route("{customerId}", Name = "GetByCustomerId")]
+    public async Task<IActionResult> GetByCustomerId(int customerId)
+    {
+        try
+        {
+            var customer = await _customerRepoService.FindOne(customerId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return Ok(customer);
+        }
+        catch (DbUpdateException e)
+        {
+            ModelState.AddModelError("", "Unable to get item. " +
+                "Try again, and if the problem persists " +
+                "see your system administrator.");
+            Console.WriteLine(e.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Creates a customer
     /// </summary>
     /// <param name="requestObject"></param>
     /// <returns>A newly created customer</returns>
@@ -52,7 +105,6 @@ public class CustomerController : ControllerBase
     ///
     ///     POST /customer
     ///     {
-    ///        "customerId": "34134142",
     ///        "name": "Dave",
     ///        "email": "Dave@live.com",
     ///        "phone": "0612345678",
@@ -62,33 +114,26 @@ public class CustomerController : ControllerBase
     ///     }
     ///
     /// </remarks>
-    /// <response code="201">If succeeded, returns the newly created item</response>
+    /// <response code="200">If succeeded, returns the newly created item</response>
     /// <response code="400">If the request body is invalid</response>
     /// <response code="500">If the server is non-responsive</response>
     [HttpPost]
-    public async Task<ActionResult<CustomerRequest>> CreateAsync(CustomerRequest requestObject)
+    public async Task<ActionResult<CustomerAccountCreated>> CreateAsync(CustomerAccountCreated requestObject)
     {
-        Console.WriteLine("----------------test-----------------", requestObject);
         try
         {
             if (ModelState.IsValid)
             {
-                // insert customer
-                Customer customer = requestObject.MapToCustomer();
-                //_dbContext.Customers.Add(customer);
-                //await _dbContext.SaveChangesAsync();
+                Customer customer = requestObject.MapCustomerAccountCreatedToCustomer();
+                var customerId = await _customerRepoService.Insert(customer);
 
-                // send event
-                CustomerCreated e = requestObject.MapToCustomerRegistered();
-                await _messagePublisher.PublishMessageAsync(e.MessageType, e, "");
+                await _messagePublisher.PublishMessageAsync(requestObject.EventType, customer);
 
-                // return result
-                return CreatedAtRoute("GetByCustomerId", new { customerId = customer.CustomerId }, customer);
+                return Ok(customer);
             }
             return BadRequest();
         }
-        catch (Exception e)
-        //catch (DbUpdateException)
+        catch (DbUpdateException e)
         {
             ModelState.AddModelError("", "Unable to save changes. " +
                 "Try again, and if the problem persists " +
@@ -99,26 +144,66 @@ public class CustomerController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Updates a customer (on single field)
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <param name="requestObject"></param>
+    /// <returns>The updated customer</returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     PUT /customer/1
+    ///     {
+    ///        "name": "Dave2"
+    ///     }
+    ///     
+    ///     or
+    ///     
+    ///     
+    ///     PUT /customer/1
+    ///     {
+    ///        "email": "Dave2@live.com"
+    ///     }
+    ///
+    /// </remarks>
+    /// <response code="200">If succeeded, returns the updated item</response>
+    /// <response code="400">If the request body is invalid</response>
+    /// <response code="500">If the server is non-responsive</response>
     [HttpPut]
     [Route("{customerId}")]
-    public async Task<IActionResult> UpdateAsync(string customerId, [FromBody] CustomerRequest requestObject)
+    public async Task<ActionResult<CustomerInformationUpdated>> UpdateAsync(int customerId, CustomerInformationUpdated requestObject)
     {
         try
         {
             if (ModelState.IsValid)
             {
-                // update customer
-                Customer customer = requestObject.MapToCustomer();
-                //_dbContext.Customers.Update(customer);
-                //await _dbContext.SaveChangesAsync();
+                Customer customer = await _customerRepoService.FindOne(customerId);
 
-                // return result
+                if (customer == null)
+                {
+                    return NotFound();
+                }
+
+                Customer customerConverted = requestObject.MapCustomerInformationUpdatedToCustomer();
+                if (requestObject.Name != null) customer.Name = customerConverted.Name;
+                if (requestObject.Email != null) customer.Email = customerConverted.Email;
+                if (requestObject.Phone != null) customer.Phone = customerConverted.Phone;
+                if (requestObject.Address != null) customer.Address = customerConverted.Address;
+                if (requestObject.DateOfBirth != null) customer.DateOfBirth = customerConverted.DateOfBirth;
+                if (requestObject.Gender != null) customer.Gender = customerConverted.Gender;
+                customer.UpdatedAt = DateTime.Now;
+
+
+                await _customerRepoService.Update(customer);
+
+                await _messagePublisher.PublishMessageAsync(requestObject.EventType, customer);
+
                 return Ok(customer);
             }
             return BadRequest();
         }
-        catch (Exception e)
-        //catch (DbUpdateException)
+        catch (DbUpdateException e)
         {
             ModelState.AddModelError("", "Unable to save changes. " +
                                "Try again, and if the problem persists " +
@@ -129,26 +214,40 @@ public class CustomerController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Deletes a customer
+    /// </summary>
+    /// <param name="customerId"></param>
+    /// <returns>A deletion confirmation</returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    ///     DELETE /customer/1
+    ///     
+    ///     No request body needed
+    ///
+    /// </remarks>
+    /// <response code="200">If succeeded, returns a deletion confirmation body</response>
+    /// <response code="400">If the customer is not found</response>
+    /// <response code="500">If the server is non-responsive</response>
     [HttpDelete]
     [Route("{customerId}")]
-    public async Task<IActionResult> DeleteAsync(string customerId)
+    public async Task<IActionResult> DeleteAsync(int customerId)
     {
         try
         {
-            // delete customer
-            //var customer = await _dbContext.Customers.FirstOrDefaultAsync(c => c.CustomerId == customerId);
-            //if (customer == null)
-            //{
-            //    return NotFound();
-            //}
-            //_dbContext.Customers.Remove(customer);
-            //await _dbContext.SaveChangesAsync();
+            var customer = await _customerRepoService.FindOne(customerId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            await _customerRepoService.Delete(customer);
 
-            // return result
-            return Ok();
+            await _messagePublisher.PublishMessageAsync("CustomerAccountDeleted", $"Deleted customer with Id: {customerId}");
+
+            return Ok($"Message: User with id {customerId} is deleted.");
         }
-        catch (Exception e)
-        //catch (DbUpdateException)
+        catch (DbUpdateException e)
         {
             ModelState.AddModelError("", "Unable to save changes. " +
                                               "Try again, and if the problem persists " +

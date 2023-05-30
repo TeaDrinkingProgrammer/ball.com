@@ -10,32 +10,32 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
     private readonly int _port;
     private readonly string _username;
     private readonly string _password;
-    private readonly string _exchange;
+    private readonly string _queue;
     private IConnection _connection;
     private IModel _model;
 
-    public RabbitMQMessagePublisher(string host, string username, string password, string exchange)
-        : this(new List<string>() { host }, username, password, exchange, DEFAULT_PORT)
+    public RabbitMQMessagePublisher(string host, string username, string password, string queue)
+        : this(new List<string>() { host }, username, password, queue, DEFAULT_PORT)
     {
     }
 
-    public RabbitMQMessagePublisher(string host, string username, string password, string exchange, int port)
-        : this(new List<string>() { host }, username, password, exchange, port)
+    public RabbitMQMessagePublisher(string host, string username, string password, string queue, int port)
+        : this(new List<string>() { host }, username, password, queue, port)
     {
     }
 
-    public RabbitMQMessagePublisher(IEnumerable<string> hosts, string username, string password, string exchange)
-        : this(hosts, username, password, exchange, DEFAULT_PORT)
+    public RabbitMQMessagePublisher(IEnumerable<string> hosts, string username, string password, string queue)
+        : this(hosts, username, password, queue, DEFAULT_PORT)
     {
     }
 
-    public RabbitMQMessagePublisher(IEnumerable<string> hosts, string username, string password, string exchange, int port)
+    public RabbitMQMessagePublisher(IEnumerable<string> hosts, string username, string password, string queue, int port)
     {
         _hosts = new List<string>(hosts);
         _port = port;
         _username = username;
         _password = password;
-        _exchange = exchange;
+        _queue = queue;
 
         var logMessage = new StringBuilder();
         logMessage.AppendLine("Create RabbitMQ message-publisher instance using config:");
@@ -43,8 +43,8 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
         logMessage.AppendLine($" - Port: {_port}");
         logMessage.AppendLine($" - UserName: {_username}");
         logMessage.AppendLine($" - Password: {new string('*', _password.Length)}");
-        logMessage.Append($" - Exchange: {_exchange}");
-        Log.Information(logMessage.ToString());
+        logMessage.Append($" - Queue: {_queue}");
+        Console.WriteLine(logMessage.ToString());
 
         Connect();
     }
@@ -54,8 +54,7 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
     /// </summary>
     /// <param name="messageType">Type of the message.</param>
     /// <param name="message">The message to publish.</param>
-    /// <param name="routingKey">The routingkey to use (RabbitMQ specific).</param>
-    public Task PublishMessageAsync(string messageType, object message, string routingKey)
+    public Task PublishMessageAsync(string messageType, object message)
     {
         return Task.Run(() =>
             {
@@ -63,7 +62,8 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
                 var body = Encoding.UTF8.GetBytes(data);
                 IBasicProperties properties = _model.CreateBasicProperties();
                 properties.Headers = new Dictionary<string, object> { { "MessageType", messageType } };
-                _model.BasicPublish(_exchange, routingKey, properties, body);
+                _model.BasicPublish(exchange: "", routingKey: "customer", properties, body: body);
+                //_model.BasicPublish(exchange: "", routingKey: "customer", body: body);
             });
     }
 
@@ -71,14 +71,15 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
     {
         Policy
             .Handle<Exception>()
-            .WaitAndRetry(9, r => TimeSpan.FromSeconds(5), (ex, ts) => { Log.Error("Error connecting to RabbitMQ. Retrying in 5 sec."); })
+            .WaitAndRetry(9, r => TimeSpan.FromSeconds(5), (ex, ts) => { Console.WriteLine("Error connecting to RabbitMQ. Retrying in 5 sec."); })
             .Execute(() =>
             {
                 var factory = new ConnectionFactory() { UserName = _username, Password = _password, Port = _port };
                 factory.AutomaticRecoveryEnabled = true;
                 _connection = factory.CreateConnection(_hosts);
                 _model = _connection.CreateModel();
-                _model.ExchangeDeclare(_exchange, "fanout", durable: true, autoDelete: false);
+                _model.QueueDeclare(_queue, exclusive: false);
+                //_model.QueueDeclare(_queue, durable: true, exclusive: false, autoDelete: false);
             });
     }
 

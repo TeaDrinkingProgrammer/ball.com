@@ -1,12 +1,9 @@
-﻿using CustomerManagement.Messaging;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace CustomerManagement.RequestModels;
+namespace CustomerManagement.EventModels;
 
-public class CustomerRequest : Command
+public class CustomerAccountCreated : CustomerBaseEvent
 {
-    [Required(ErrorMessage = "CustomerId is required.")]
-    public string CustomerId { get; set; }
     [Required(ErrorMessage = "Name is required.")]
     public string Name { get; set; }
     [Required(ErrorMessage = "Email is required.")]
@@ -20,15 +17,13 @@ public class CustomerRequest : Command
     [Required(ErrorMessage = "Gender is required.")]
     public string Gender { get; set; }
 
-    public CustomerRequest(string customerId, string name, string email, string phone, string address, string dateOfBirth, string gender)
+    public CustomerAccountCreated(string name, string email, string phone, string address, string dateOfBirth, string gender)
     {
-        CustomerId = customerId;
         Name = name;
         Email = email;
         Phone = phone;
         Address = address;
         DateOfBirth = dateOfBirth;
         Gender = gender;
-        base.MessageId = Guid.NewGuid();
     }
 }

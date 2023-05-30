@@ -6,25 +6,16 @@ public static class Configuration
     private static string _host;
     private static string _userName;
     private static string _password;
-    private static string _exchange;
     private static string _queue;
-    private static string _routingKey;
     private static int _port;
     private static List<string> _errors;
     private static bool _isValid;
-
-    public static void UseRabbitMQMessageHandler(this IServiceCollection services, IConfiguration config)
-    {
-        GetRabbitMQSettings(config, "RabbitMQHandler");
-        services.AddTransient<IMessageHandler>(_ => new RabbitMQMessageHandler(
-            _host, _userName, _password, _exchange, _queue, _routingKey, _port));
-    }
 
     public static void UseRabbitMQMessagePublisher(this IServiceCollection services, IConfiguration config)
     {
         GetRabbitMQSettings(config, "RabbitMQPublisher");
         services.AddTransient<IMessagePublisher>(_ => new RabbitMQMessagePublisher(
-            _host, _userName, _password, _exchange, _port));
+            _host, _userName, _password, _queue, _port));
     }
 
     private static void GetRabbitMQSettings(IConfiguration config, string sectionName)
@@ -43,12 +34,7 @@ public static class Configuration
         DeterminePort(configSection);
         DetermineUsername(configSection);
         DeterminePassword(configSection);
-        DetermineExchange(configSection);
-        if (sectionName == "RabbitMQHandler")
-        {
-            DetermineQueue(configSection);
-            DetermineRoutingKey(configSection);
-        }
+        DetermineQueue(configSection);
 
         // handle possible errors
         if (!_isValid)
@@ -109,16 +95,6 @@ public static class Configuration
         }
     }
 
-    private static void DetermineExchange(IConfigurationSection configSection)
-    {
-        _exchange = configSection["Exchange"];
-        if (string.IsNullOrEmpty(_exchange))
-        {
-            _isValid = false;
-            _errors.Add("Required config-setting 'Exchange' not found.");
-        }
-    }
-
     private static void DetermineQueue(IConfigurationSection configSection)
     {
         _queue = configSection["Queue"];
@@ -127,10 +103,5 @@ public static class Configuration
             _isValid = false;
             _errors.Add("Required config-setting 'Queue' not found.");
         }
-    }
-
-    private static void DetermineRoutingKey(IConfigurationSection configSection)
-    {
-        _routingKey = configSection["RoutingKey"] ?? "";
     }
 }

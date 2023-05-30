@@ -1,17 +1,20 @@
-using CustomerManagement.Messaging;
+using CustomerManagement.DataAccess;
 using CustomerManagement.Messaging.Configuration;
+using CustomerManagement.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//// Add services to the container.
-///// setup logging
-//builder.Host.UseSerilog((context, logContext) => 
-//    logContext
-//        .ReadFrom.Configuration(builder.Configuration)
-//        .Enrich.WithMachineName()
-//);
+var sqlConnectionString = builder.Configuration.GetConnectionString("DatabaseConnectionString");
+
+var serverVersion = new MariaDbServerVersion(new Version(10, 11, 3));
+builder.Services.AddDbContext<CustomerManagementDBContext>(
+    dbContextOptions => dbContextOptions.UseMySql(sqlConnectionString, serverVersion)
+);
+
+builder.Services.AddScoped<ICustomerRepoService, CustomerRepoService>();
 
 // add messagepublisher
 builder.Services.UseRabbitMQMessagePublisher(builder.Configuration);
@@ -49,10 +52,15 @@ builder.Services.AddSwaggerGen(
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+app.UseSwagger();
+app.UseSwaggerUI();
+//}
+
+using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    scope.ServiceProvider.GetService<CustomerManagementDBContext>().MigrateDB();
 }
 
 app.UseHttpsRedirection();
