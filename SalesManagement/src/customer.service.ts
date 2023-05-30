@@ -15,6 +15,15 @@ export class CustomerService {
     }
 
     async deleteCustomer(data: any) {
+        try {
+            let result = await this.customerModel.deleteOne({ id: data.Id });
+            if (result.deletedCount === 0) {
+                Logger.log("Customer not found");
+            }
+        } catch (e) {
+            Logger.log(e);
+        }
+
 
     }
 }

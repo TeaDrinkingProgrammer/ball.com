@@ -4,13 +4,16 @@ import { Order, OrderPayload } from './models/order';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './models/product';
+import { Customer } from './models/customer';
 
 @Injectable()
 export class OrderService {
 
   constructor(@Inject('SERVICE') private readonly client: ClientProxy,
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
-    @InjectModel(Product.name) private readonly productModel: Model<Product>) { }
+    @InjectModel(Product.name) private readonly productModel: Model<Product>,
+    @InjectModel(Customer.name) private readonly customerModel: Model<Customer>,
+  ) { }
 
   async createOrder(orderPayload: OrderPayload): Promise<any> {
     let totalQuantity = orderPayload.products.reduce((acc, product) => acc + product.quantity, 0);
@@ -29,10 +32,15 @@ export class OrderService {
       return { message: 'Product not found', status: 404 };
     }
 
-    let productList: {product: Product, quantity: number}[] = [];
+    let customer = await this.customerModel.findOne({ id: orderPayload.customerId });
+    if (!customer) {
+      return { message: 'Customer not found', status: 404 };
+    }
+
+    let productList: { product: Product, quantity: number }[] = [];
     for (let product of products) {
-        let quantity = orderPayload.products.find(p => p.productId === product.productId).quantity;
-        productList.push({product, quantity});
+      let quantity = orderPayload.products.find(p => p.productId === product.productId).quantity;
+      productList.push({ product, quantity });
     }
 
 
