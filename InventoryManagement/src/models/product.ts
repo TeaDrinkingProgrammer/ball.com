@@ -70,9 +70,9 @@ export class ProductDeleted {
 }
 
 export class ProductPayload {
-  @IsString()
-  @IsUUID()
-  id: string;
+  // @IsString()
+  // @IsUUID()
+  // id: string;
   @IsNumber()
   quantity: number;
   @IsString()
@@ -116,8 +116,8 @@ export class Product {
   @Prop({ required: true })
   manufacturer: string;
 
-  constructor(payload: ProductPayload) {
-    this.id = payload.id;
+  constructor(id: string, payload: ProductPayload) {
+    this.id = id;
     this.quantity = payload.quantity;
     this.supplier = payload.supplier;
     this.name = payload.name;

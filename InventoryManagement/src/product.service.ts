@@ -5,6 +5,7 @@ import { EventStoreDBClient, FORWARDS, JSONEventType, START, eventTypeFilter, ex
 import { client as eventStore } from './event-store';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ProductService {
@@ -14,10 +15,11 @@ export class ProductService {
     type: string,
     data: Product
   }> {
+    const uuid = uuidv4();
     Logger.log("product created payload:", {...ProductPayload});
-    Logger.log("product created class:", {...new Product(ProductPayload)});
+    Logger.log("product created class:", {...new Product(uuid, ProductPayload)});
 
-    const product = new Product(ProductPayload);
+    const product = new Product(uuid, ProductPayload);
     const productCreated = jsonEvent({
       type: 'ProductCreated',
       data: {
@@ -28,14 +30,14 @@ export class ProductService {
     const productCategoryChanged = jsonEvent({
       type: 'ProductCategoryChanged',
       data: {
-        ...new ProductInfo(ProductPayload)
+        ...new ProductInfo({id: uuid, ...ProductPayload})
       },
     });
 
     const productStockChanged = jsonEvent({
       type: 'ProductStockChanged',
       data: {
-        ...new ProductStock(ProductPayload)
+        ...new ProductStock({id: uuid, ...ProductPayload})
       },
     });
 
@@ -132,8 +134,8 @@ async deleteProduct(ProductId: string): Promise<{
 
 
 async function productExists(productModel: Model<Product>, productId: string) {
-  if (await productModel.findOne({ productId: productId})) {
-    Logger.error("Product does not exist.");
+  if (await productModel.findOne({ productId: productId}) === null) {
+    Logger.debug("Product does not exist.");
     return true;
   }
   return false;
