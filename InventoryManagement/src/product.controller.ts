@@ -29,19 +29,22 @@ export class ProductController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateProductStockREST(@Body() productPayload: ProductStockPayload) {
     Logger.log('Product created', productPayload);
+    let newStock;
     try {
       const addedEvent = await this.productService.updateProductStock(productPayload);
+      newStock = addedEvent.data.quantity;
+
       this.client.emit(addedEvent.type, addedEvent.data);
     } catch (error) {
       return { message: error, status: 400 };
     }
-
-    return { message: 'Product stock updated', status: 201 };
+    // { message: 'Product stock updated',stock: newStock, status: 201 }
+    return { message: 'Product stock updated',stock: newStock, status: 201 };
   }
 
   @EventPattern('ProductStockChanged')
   @UsePipes(new ValidationPipe({ transform: true }))
-  async updateProductEvent( @Body() productPayload: ProductStockPayload) {
+  async updateProductStockEvent( @Body() productPayload: ProductStockPayload) {
     Logger.log('Product created', productPayload);
     try {
       await this.productService.updateProductStock(productPayload);
