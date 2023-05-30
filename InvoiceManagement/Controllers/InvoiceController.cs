@@ -45,7 +45,7 @@ public class InvoiceController : ControllerBase
         var id = await _invoiceService.Insert(dto);
         if (id != default)
         {
-            _messagePublisher.SendProductMessage(id);
+            _messagePublisher.SendMessage(id);
             return CreatedAtRoute("FindOne", new { id = id }, dto);
         }
         else

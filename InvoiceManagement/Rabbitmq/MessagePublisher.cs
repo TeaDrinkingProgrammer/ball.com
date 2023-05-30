@@ -14,7 +14,9 @@ public class MessagePublisher : IMessagePublisher
         //Here we create channel with session and model
         using var channel = connection.CreateModel();
         //declare the queue after mentioning name and a few property related to that
-        channel.QueueDeclare("invoice", exclusive: false);
+        channel.QueueDeclare("product", exclusive: false);
+        channel.QueueDeclare("customer", exclusive: false);
+        channel.QueueDeclare("order", exclusive: false);
         //Serialize the message
         var json = JsonConvert.SerializeObject(message);
         var body = Encoding.UTF8.GetBytes(json);
