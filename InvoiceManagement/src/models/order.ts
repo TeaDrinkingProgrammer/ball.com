@@ -3,21 +3,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Product } from "./product";
 
-enum Status {
-    made = "made",
-    paid = "paid",
-    shipped = "shipped",
-    delivered = "delivered",
-    cancelled = "cancelled"
-}
-
 export type OrderDocument = HydratedDocument<Order>;
 
 @Schema()
 export class Order {
-
-    @Prop({ default: Status.made, enum: Status })
-    status: string;
 
     @Prop({ required: true })
     totalAmount: number;

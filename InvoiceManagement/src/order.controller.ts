@@ -6,9 +6,9 @@ import { OrderService } from './order.service';
 export class OrderController {
   constructor(private readonly orderService: OrderService) { }
 
-  @EventPattern('OrderCreated')
+  @EventPattern('OrderPlaced')
   async handleOrderCreated(data: Record<string, unknown>) {
-    Logger.log('order created', data);
+    Logger.log('order placed', data);
     let json = JSON.stringify(data);
     await this.orderService.createOrder(JSON.parse(json));
   }
