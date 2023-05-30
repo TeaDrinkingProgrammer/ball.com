@@ -5,12 +5,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Order, OrderSchema } from './models/order';
 import { ProductController } from './product.controller';
-import { mongodb, rabbitmq } from './connection';
+import { mongoUrl, rabbitmqUrl } from './connection';
 import { Product, ProductSchema } from './models/product';
+import { ProductService } from './product.service';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(mongodb),
+    MongooseModule.forRoot(mongoUrl),
     MongooseModule.forFeature([
       { name: Order.name, schema: OrderSchema },
       { name: Product.name, schema: ProductSchema },
@@ -19,7 +20,7 @@ import { Product, ProductSchema } from './models/product';
       {
         name: 'SERVICE', transport: Transport.RMQ,
         options: {
-          urls: [rabbitmq],
+          urls: [rabbitmqUrl],
           queue: 'order',
           queueOptions: {
             durable: false
@@ -29,6 +30,6 @@ import { Product, ProductSchema } from './models/product';
     ]),
   ],
   controllers: [ProductController, AppController],
-  providers: [OrderService, ProductController],
+  providers: [OrderService, ProductService],
 })
 export class AppModule { }

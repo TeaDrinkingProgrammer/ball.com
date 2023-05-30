@@ -1,40 +1,115 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
-import { Product, ProductPayload } from './models/product';
+import { ProductDeleted, ProductInfo, ProductInfoPayload, ProductStock, ProductStockPayload, ProductCreated, ProductCreatedPayload } from './models/product';
+import { EventStoreDBClient, FORWARDS, JSONEventType, START, eventTypeFilter, excludeSystemEvents, jsonEvent, streamNameFilter } from '@eventstore/db-client';
+import { client as eventStore } from './event-store';
 
 @Injectable()
 export class ProductService {
+  constructor() { }
 
-  constructor(@Inject('SERVICE') private readonly client: ClientProxy,
-    @InjectModel(Product.name) private readonly ProductModel: Model<Product>,) { }
+  async createProduct(ProductPayload: ProductCreatedPayload): Promise<{
+    type: string,
+    data: ProductCreated
+  }> {
+    Logger.log("product created payload:", {...ProductPayload});
+    Logger.log("product created class:", {...new ProductCreated(ProductPayload)});
 
-  async createProduct(ProductPayload: ProductPayload): Promise<any> {
-    const newProduct = new Product(ProductPayload);
-    const createdProduct = await this.ProductModel.create(newProduct);
-    this.client.emit('ProductCreated', {data: createdProduct.toJSON()});
-    // this.client.send('ProductCreated', createdProduct.toJSON());
+    const productCreated = jsonEvent({
+      type: 'ProductCreated',
+      data: {
+        ...new ProductCreated(ProductPayload)
+      },
+    });
 
-    Logger.log('Product created????');
-    return { message: 'Product created', status: 201 }
+    const productCategoryChanged = jsonEvent({
+      type: 'ProductCategoryChanged',
+      data: {
+        ...new ProductInfo(ProductPayload)
+      },
+    });
+
+    const productStockChanged = jsonEvent({
+      type: 'ProductStockChanged',
+      data: {
+        ...new ProductStock(ProductPayload)
+      },
+    });
+  
+    Logger.log("product created", productCreated.type, {...productCreated.data});
+
+    await eventStore.appendToStream(productCategoryChanged.type, [productCategoryChanged]);
+    await eventStore.appendToStream(productStockChanged.type, [productStockChanged]);
+
+    return productCreated;
+  }
+  async updateProductStock(ProductPayload: ProductStockPayload): Promise<{
+    type: string,
+    data: ProductStock
+  }> {
+    const product = new ProductStock(ProductPayload);
+    const addedEvent = jsonEvent({
+      type: 'ProductStockChanged',
+      data: {
+        ...product
+      },
+    });
+    type ProductInfoUpdatedEvent = JSONEventType<"ProductInfoChanged", {
+      id: string;
+    }>
+    // Handle error when eventstream does not exist
+    const events = eventStore.readStream<ProductInfoUpdatedEvent>("ProductStockChanged", {
+      fromRevision: START,
+      direction: FORWARDS,
+    });
+
+    for await (const { event } of events) {
+      if (event.data.id === product.id) {
+        Logger.log("product create", addedEvent.type, {...product});
+
+        await eventStore.appendToStream(addedEvent.type, [addedEvent]);
+        
+        return addedEvent;
+      }
+    }
+
+    return Promise.reject("Cannot add product stock when product does not exist");
   }
 
-  async updateProduct(ProductId: string, ProductPayload: ProductPayload): Promise<any> {
-    const updatedProduct = {
-      ...ProductPayload,
-      updatedAt: new Date(),
-    };
+  async updateProductCategory(ProductPayload: ProductInfoPayload): Promise<{
+    type: string,
+    data: ProductInfo
+  }> {
+    const product = new ProductInfo(ProductPayload);
+    const addedEvent = jsonEvent({
+      type: 'ProductInfoChanged',
+      data: {
+        ...product
+      },
+    });
+    await eventStore.appendToStream(addedEvent.type, [addedEvent]);
 
-    await this.ProductModel.updateOne({ _id: ProductId }, updatedProduct);
-    this.client.emit('ProductUpdated', updatedProduct);
-    return { message: 'Product updated', status: 200 };
+    Logger.log('Product updated');
+
+    return addedEvent;
   }
 
-  async deleteProduct(ProductId: string): Promise<any> {
-    await this.ProductModel.deleteOne({ _id: ProductId });
-    this.client.emit('ProductDeleted', ProductId);
-    return { message: 'Product deleted', status: 200 };
+async deleteProduct(ProductId: string): Promise<{
+  type: string,
+  data: ProductDeleted
+}> {
+    const product = new ProductDeleted(ProductId);
+    const addedEvent = jsonEvent({
+      type: 'ProductDeleted',
+      data: {
+        ...product
+      },
+    });
+    await eventStore.appendToStream(addedEvent.type, [addedEvent]);
+
+    Logger.log('Product deleted');
+    
+    return addedEvent;
   }
 
 }
