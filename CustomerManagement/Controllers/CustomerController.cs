@@ -163,9 +163,11 @@ public class CustomerController : ControllerBase
     ///     
     ///     PUT /customer/1
     ///     {
-    ///        "email": "Dave2@live.com"
+    ///        "email": "Dave2@live.com",
+    ///        "address": "Lovensdijkstraat 1"
     ///     }
     ///
+    ///     etc...
     /// </remarks>
     /// <response code="200">If succeeded, returns the updated item</response>
     /// <response code="400">If the request body is invalid</response>
