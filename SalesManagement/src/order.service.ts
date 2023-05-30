@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Order, OrderPayload } from './models/order';
+import { Order, OrderPayload, Status } from './models/order';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './models/product';
@@ -64,5 +64,14 @@ export class OrderService {
   async getOrders(): Promise<any> {
     const orders = await this.orderModel.find().select('-__v');
     return { data: orders, status: 200 };
+  }
+
+  async updateOrderStatus(orderId: string, status: string): Promise<any> {
+    let update = await this.orderModel.findOneAndUpdate({ _id: orderId }, { status: status });
+    if (!update) {
+      return { message: 'Order not found', status: 404 };
+    } else {
+      return { message: 'Order status updated', status: 200 };
+    }
   }
 }
