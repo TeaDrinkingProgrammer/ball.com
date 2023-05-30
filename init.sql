@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS InvoiceManagement;
+CREATE DATABASE IF NOT EXISTS CustomerManagement;
