@@ -13,9 +13,16 @@ export class ProductController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async createProductREST(@Body() productPayload: ProductPayload) {
     Logger.log('Product created', productPayload);
-    const addedEvent = await this.productService.createProduct(productPayload);
-    this.client.emit(addedEvent.type, addedEvent.data);
-    return { message: 'Product stock updated', status: 201 };
+    let id;
+    try {
+      const addedEvent = await this.productService.createProduct(productPayload);
+      id = addedEvent.data.id;
+      this.client.emit(addedEvent.type, addedEvent.data);
+    } catch (error) {
+      return { message: error, status: 400 };
+    }
+    
+    return {message: "Product created",id: id, status: 201 };
   }
 
   @Patch('stock')
@@ -36,22 +43,36 @@ export class ProductController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateProductEvent( @Body() productPayload: ProductStockPayload) {
     Logger.log('Product created', productPayload);
-    await this.productService.updateProductStock(productPayload);
+    try {
+      await this.productService.updateProductStock(productPayload);
+    } catch (error) {
+      return { message: error, status: 400 };
+    }
   }
 
   @Patch('info')
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateProductInfoREST(@Body() productPayload: ProductInfoPayload) {
+    try {
     Logger.log('Product category changed request', productPayload)
-    const addedEvent = await this.productService.updateProductCategory(productPayload);
-    this.client.emit(addedEvent.type, addedEvent.data);
+      const addedEvent = await this.productService.updateProductCategory(productPayload);
+      this.client.emit(addedEvent.type, addedEvent.data);
+    } catch (error) {
+      return { message: error, status: 400 };
+    }
+    
     return { message: 'Product metadata updated', status: 201 };
   }
 
   @Delete(':productId')
   async DiscontinueProductCategoryREST(@Param('productId') productId: string) {
-    const addedEvent = await this.productService.deleteProduct(productId);
-    this.client.emit(addedEvent.type, addedEvent.data);
+    try {
+      const addedEvent = await this.productService.deleteProduct(productId);
+      this.client.emit(addedEvent.type, addedEvent.data);
+    } catch (error) {
+      return { message: error, status: 400 };
+    }
+    
     return { message: 'Product deleted', status: 200 };
   }
 }

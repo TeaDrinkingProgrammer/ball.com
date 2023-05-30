@@ -16,8 +16,6 @@ export class ProductService {
     data: Product
   }> {
     const uuid = uuidv4();
-    Logger.log("product created payload:", {...ProductPayload});
-    Logger.log("product created class:", {...new Product(uuid, ProductPayload)});
 
     const product = new Product(uuid, ProductPayload);
     const productCreated = jsonEvent({
@@ -47,12 +45,11 @@ export class ProductService {
     }
 
     await this.productModel.create(product);
-
-    Logger.log("product created", productCreated.type, {...productCreated.data});
   
     await eventStore.appendToStream(productCategoryChanged.type, [productCategoryChanged]);
     await eventStore.appendToStream(productStockChanged.type, [productStockChanged]);
 
+    Logger.log("Product created", productCreated.type, {...productCreated.data});
     return productCreated;
   }
 
@@ -70,8 +67,8 @@ export class ProductService {
 
     const productModel = this.productModel.findOne({ productId: product.id });
 
-    if (! productModel) {
-      Logger.error("Product already exists. updating instead");
+    if (productModel === null) {
+      Logger.error("Product does not exist. aborting update");
       return Promise.reject({status: 404, message: "Cannot update product stock when product does not exist"})
     }
     
@@ -79,6 +76,7 @@ export class ProductService {
 
     await eventStore.appendToStream(addedEvent.type, [addedEvent]);
 
+    Logger.log('Product Stock updated');
     return addedEvent;
   }
 
@@ -98,11 +96,12 @@ export class ProductService {
       Logger.error("Cannot update product category when product does not exist");
       return Promise.reject({status: 404, message: "Cannot update product category when product does not exist"})
     }
+    const { id: productId, ...productWithoutId } = product;
+    await this.productModel.updateOne({ productId: productId }, {...productWithoutId });
 
     await eventStore.appendToStream(addedEvent.type, [addedEvent]);
 
-    Logger.log('Product updated');
-
+    Logger.log('Product Category updated');
     return addedEvent;
   }
 
@@ -122,6 +121,8 @@ async deleteProduct(ProductId: string): Promise<{
       Logger.error("Cannot delete product category when product does not exist");
       return Promise.reject({status: 404, message: "Cannot delete product category when product does not exist"})
     }
+
+    await this.productModel.deleteOne({ productId: product.id });
 
     await eventStore.appendToStream(addedEvent.type, [addedEvent]);
 
