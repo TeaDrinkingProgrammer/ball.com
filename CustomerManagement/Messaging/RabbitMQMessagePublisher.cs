@@ -58,7 +58,7 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
     {
         return Task.Run(() =>
             {
-                string data = MessageSerializer.Serialize(message, messageType);
+                string data = MessageSerializer.Serialize(MessageSerializer.GetMessageInFormat(message, messageType));
                 var body = Encoding.UTF8.GetBytes(data);
                 IBasicProperties properties = _model.CreateBasicProperties();
                 properties.Headers = new Dictionary<string, object> { { "MessageType", messageType } };

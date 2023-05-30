@@ -245,7 +245,7 @@ public class CustomerController : ControllerBase
             }
             await _customerRepoService.Delete(customer);
 
-            await _messagePublisher.PublishMessageAsync("CustomerAccountDeleted", $"Deleted customer with Id: {customerId}");
+            await _messagePublisher.PublishMessageAsync("CustomerAccountDeleted", new { Id = customerId });
 
             return Ok($"Message: User with id {customerId} is deleted.");
         }
