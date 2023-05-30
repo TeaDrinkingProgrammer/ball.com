@@ -58,7 +58,7 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
     {
         return Task.Run(() =>
             {
-                string data = MessageSerializer.Serialize(message);
+                string data = MessageSerializer.Serialize(message, messageType);
                 var body = Encoding.UTF8.GetBytes(data);
                 IBasicProperties properties = _model.CreateBasicProperties();
                 properties.Headers = new Dictionary<string, object> { { "MessageType", messageType } };
@@ -78,7 +78,6 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
                 factory.AutomaticRecoveryEnabled = true;
                 _connection = factory.CreateConnection(_hosts);
                 _model = _connection.CreateModel();
-                // _model.QueueDeclare(_queue, exclusive: false);
                 _model.QueueDeclare(_queue, durable: true, exclusive: false, autoDelete: false);
             });
     }
