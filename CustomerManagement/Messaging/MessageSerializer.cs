@@ -27,15 +27,19 @@ public static class MessageSerializer
     /// </summary>
     /// <param name="value">The value to serialize.</param>
     /// <param name="messageType">The message type</param>
-    public static string Serialize(object value, string messageType)
+    public static string Serialize(object value)
     {
-        var message = new
+        return JsonConvert.SerializeObject(value, _serializerSettings);
+    }
+
+
+    public static object GetMessageInFormat(object value, string messageType)
+    {
+        return new
         {
             pattern = messageType,
             data = value
         };
-
-        return JsonConvert.SerializeObject(message, _serializerSettings);
     }
 
     /// <summary>
