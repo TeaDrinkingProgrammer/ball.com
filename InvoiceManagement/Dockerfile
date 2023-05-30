@@ -1,14 +1,13 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 5500
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["InvoiceManagement/InvoiceManagement.csproj", "InvoiceManagement/"]
-RUN dotnet restore "InvoiceManagement/InvoiceManagement.csproj"
+COPY ["InvoiceManagement.csproj", "."]
+RUN dotnet restore "./InvoiceManagement.csproj"
 COPY . .
-WORKDIR "/src/InvoiceManagement"
+WORKDIR "/src/."
 RUN dotnet build "InvoiceManagement.csproj" -c Release -o /app/build
 
 FROM build AS publish
