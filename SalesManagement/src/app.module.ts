@@ -8,6 +8,8 @@ import { ProductController } from './product.controller';
 import { mongoUrl, rabbitmqUrl } from './connection';
 import { Product, ProductSchema } from './models/product';
 import { ProductService } from './product.service';
+import { CustomerService } from './customer.service';
+import { CustomerController } from './customer.controller';
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { ProductService } from './product.service';
       },
     ]),
   ],
-  controllers: [ProductController, AppController],
-  providers: [OrderService, ProductService],
+  controllers: [ProductController, AppController, CustomerController],
+  providers: [OrderService, ProductService, CustomerService],
 })
 export class AppModule { }

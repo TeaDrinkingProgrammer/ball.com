@@ -42,19 +42,6 @@ export class OrderService {
     return { message: 'Order placed', id: createdOrder.id, status: 201 }
   }
 
-  async cancelOrder(orderId: string): Promise<any> {
-    const order = await this.orderModel.findById(orderId).populate('products');
-    if (!order) {
-      return { message: 'Order not found', status: 404 };
-    }
-
-    order.status = 'cancelled';
-    await order.save();
-
-    this.client.emit('OrderCancelled', orderId);
-    return { message: 'Order cancelled', status: 200 };
-  }
-
   async getOrder(orderId: string): Promise<any> {
     Logger.log(orderId);
     let order;

@@ -78,8 +78,8 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
                 factory.AutomaticRecoveryEnabled = true;
                 _connection = factory.CreateConnection(_hosts);
                 _model = _connection.CreateModel();
-                _model.QueueDeclare(_queue, exclusive: false);
-                //_model.QueueDeclare(_queue, durable: true, exclusive: false, autoDelete: false);
+                // _model.QueueDeclare(_queue, exclusive: false);
+                _model.QueueDeclare(_queue, durable: true, exclusive: false, autoDelete: false);
             });
     }
 
