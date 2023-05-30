@@ -88,7 +88,6 @@ services:
       - rabbitmq
       - eventstoredb
 
-
   customer_management_service:
     image: ${DOCKER_REGISTRY-}customermanagement
     build:
@@ -111,7 +110,7 @@ services:
     depends_on:
       - rabbitmq
       - mariadb
-      - phpmyadmin      
+      - phpmyadmin
       - sales_management_service
       - inventory_management_service
       - customer_management_service

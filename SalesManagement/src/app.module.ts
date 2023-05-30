@@ -8,6 +8,9 @@ import { ProductController } from './product.controller';
 import { mongoUrl, rabbitmqUrl } from './connection';
 import { Product, ProductSchema } from './models/product';
 import { ProductService } from './product.service';
+import { CustomerService } from './customer.service';
+import { CustomerController } from './customer.controller';
+import { Customer, CustomerSchema } from './models/customer';
 
 @Module({
   imports: [
@@ -15,6 +18,7 @@ import { ProductService } from './product.service';
     MongooseModule.forFeature([
       { name: Order.name, schema: OrderSchema },
       { name: Product.name, schema: ProductSchema },
+      { name: Customer.name, schema: CustomerSchema },
     ]),
     ClientsModule.register([
       {
@@ -29,7 +33,7 @@ import { ProductService } from './product.service';
       },
     ]),
   ],
-  controllers: [ProductController, AppController],
-  providers: [OrderService, ProductService],
+  controllers: [ProductController, AppController, CustomerController],
+  providers: [OrderService, ProductService, CustomerService],
 })
 export class AppModule { }
