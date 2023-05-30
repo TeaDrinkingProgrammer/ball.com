@@ -10,6 +10,7 @@ import { Product, ProductSchema } from './models/product';
 import { ProductService } from './product.service';
 import { CustomerService } from './customer.service';
 import { CustomerController } from './customer.controller';
+import { Customer, CustomerSchema } from './models/customer';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CustomerController } from './customer.controller';
     MongooseModule.forFeature([
       { name: Order.name, schema: OrderSchema },
       { name: Product.name, schema: ProductSchema },
+      { name: Customer.name, schema: CustomerSchema },
     ]),
     ClientsModule.register([
       {

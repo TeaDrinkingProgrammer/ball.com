@@ -1,34 +1,27 @@
-import { Controller, Get, Logger } from '@nestjs/common';
-import { EventPattern, MessagePattern } from '@nestjs/microservices';
-import { ProductService } from './product.service';
+import { Controller, Logger } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
+import { CustomerService } from './customer.service';
 
 @Controller()
 export class CustomerController {
-  constructor(private readonly productService: ProductService) { }
+  constructor(private readonly customerService: CustomerService) { }
 
 
-  // @EventPattern('CustomerAccountCreated')
   @MessagePattern('CustomerAccountCreated')
   async handleProductCreated(data: Record<string, unknown>) {
-    Logger.log('product created');
-    // let json = JSON.stringify(data);
-    // this.productService.createProduct(JSON.parse(json));
+    Logger.log('customer created', data);
+    this.customerService.createCustomer(data);
   }
 
   @MessagePattern('CustomerInformationUpdated')
   async handleProductStockChanged(data: Record<string, unknown>) {
-    console.log('stock ', data);
+    console.log('customer information update ', data);
   }
 
   @MessagePattern('CustomerAccountDeleted')
-  async handleProductCategoryChanged(data: Record<string, unknown>) {
-    console.log('category ', data);
-    // let json = JSON.stringify(data);
-    // this.productService.updateInfo(JSON.parse(json));
+  async deleteCustomer(data: Record<string, unknown>) {
+    console.log('delete customer', data);
+    this.customerService.deleteCustomer(data);
   }
 
-  @MessagePattern(undefined)
-  async test(data: Record<string, unknown>) {
-    console.log('test ', data);
-  }
 }
