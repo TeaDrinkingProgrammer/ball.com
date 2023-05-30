@@ -26,13 +26,16 @@ public static class MessageSerializer
     /// Serialize an object to a JSON string.
     /// </summary>
     /// <param name="value">The value to serialize.</param>
-    /// <param name="messageType">The message type</param>
     public static string Serialize(object value)
     {
         return JsonConvert.SerializeObject(value, _serializerSettings);
     }
 
-
+    /// <summary>
+    /// Turn data and message type into one object.
+    /// </summary>
+    /// <param name="value">The value to put in object for serialization.</param>
+    /// <param name="messageType">The message type to put in object for serialization</param>
     public static object GetMessageInFormat(object value, string messageType)
     {
         return new
