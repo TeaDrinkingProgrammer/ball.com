@@ -99,21 +99,16 @@ services:
       - 3002:80
 
   invoice_management_service:
-    image: ${DOCKER_REGISTRY-}invoicemanagement
     build:
       context: ./InvoiceManagement
-      dockerfile: ./Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      target: development
     ports:
-      - 3003:80
+      - 3003:3003
+    environment:
+      mongodbURL: 'mongo'
+      rabbitmqURL: 'rabbitmq'
     depends_on:
       - rabbitmq
-      - mariadb
-      - phpmyadmin
-      - sales_management_service
-      - inventory_management_service
-      - customer_management_service
 
 volumes:
   rabbitmq_data:
