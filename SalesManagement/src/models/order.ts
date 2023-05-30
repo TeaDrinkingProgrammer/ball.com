@@ -4,9 +4,8 @@ import { HydratedDocument } from 'mongoose';
 import { Product, ProductDocument } from "./product";
 import { Type } from "class-transformer";
 
-enum Status {
+export enum Status {
     made = "made",
-    paid = "paid",
     shipped = "shipped",
     delivered = "delivered",
     cancelled = "cancelled"
@@ -55,9 +54,6 @@ export class Order {
     status: string;
 
     @Prop({ required: true })
-    totalAmount: number;
-
-    @Prop({ required: true })
     paymentMethod: string;
 
     @Prop({ required: true })
@@ -72,7 +68,6 @@ export class Order {
 
     constructor(data: OrderPayload, products: { product: Product, quantity: number }[]) {
         this.customerId = data.customerId;
-        this.totalAmount = data.totalAmount;
         this.paymentMethod = data.paymentMethod;
         this.shippingAddress = data.shippingAddress;
         this.products = products;

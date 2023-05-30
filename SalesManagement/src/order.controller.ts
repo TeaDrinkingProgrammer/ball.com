@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
-import { OrderPayload } from './models/order';
+import { Body, Controller, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { OrderPayload, Status } from './models/order';
 import { OrderService } from './order.service';
 
 @Controller('order')
@@ -20,5 +20,15 @@ export class AppController {
   @Get('')
   getOrders() {
     return this.orderService.getOrders();
+  }
+
+  @Put('/:orderId')
+  updateOrderStatus(@Param('orderId') orderId: string, @Body() body: any) {
+    if ((<any>Object).values(Status).includes(body.status)) {
+      return this.orderService.updateOrderStatus(orderId, body.status);
+  } else {
+      return { message: 'Invalid status', status: 400 };
+  }
+
   }
 }
