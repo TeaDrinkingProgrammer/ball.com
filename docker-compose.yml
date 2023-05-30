@@ -33,25 +33,26 @@ services:
   mariadb:
     container_name: mariadb
     image: mariadb
-    cap_add: [SYS_NICE]
+    cap_add: [ SYS_NICE ]
     environment:
       MYSQL_ROOT_PASSWORD: admin
     volumes:
       - mariadb_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - 3306:3306
   phpmyadmin:
     container_name: phpmyadmin
     image: phpmyadmin
     ports:
-        - 8080:80
+      - 8080:80
     depends_on:
-        - "mariadb"
-    cap_add: [SYS_NICE]
+      - "mariadb"
+    cap_add: [ SYS_NICE ]
     environment:
-        PMA_HOST: mariadb
-        PMA_PASSWORD: admin
-        PMA_USER: root
+      PMA_HOST: mariadb
+      PMA_PASSWORD: admin
+      PMA_USER: root
 
   mongo:
     container_name: mongo
@@ -87,6 +88,7 @@ services:
       - rabbitmq
       - eventstoredb
 
+
   customer_management_service:
     image: ${DOCKER_REGISTRY-}customermanagement
     build:
@@ -96,15 +98,28 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
     ports:
       - 3002:80
+
+  invoice_management_service:
+    image: ${DOCKER_REGISTRY-}invoicemanagement
+    build:
+      context: ./InvoiceManagement
+      dockerfile: ./Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - 3003:80
     depends_on:
       - rabbitmq
       - mariadb
-      - phpmyadmin
+      - phpmyadmin      
+      - sales_management_service
+      - inventory_management_service
+      - customer_management_service
 
 volumes:
-    rabbitmq_data:
-    rabbitmq_log:
-    eventstore_data:
-    eventstore_log:
-    mariadb_data:
-    mongo_data:
+  rabbitmq_data:
+  rabbitmq_log:
+  eventstore_data:
+  eventstore_log:
+  mariadb_data:
+  mongo_data:
