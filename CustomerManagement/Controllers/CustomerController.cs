@@ -4,6 +4,7 @@ using CustomerManagement.Messaging;
 using CustomerManagement.Models;
 using CustomerManagement.RequestModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace CustomerManagement.Controllers;
 
@@ -51,21 +52,23 @@ public class CustomerController : ControllerBase
     ///
     ///     POST /customer
     ///     {
+    ///        "customerId": "34134142",
     ///        "name": "Dave",
     ///        "email": "Dave@live.com",
     ///        "phone": "0612345678",
     ///        "address": "Avansstraat 1",
     ///        "dateOfBirth": "01-01-2000",
-    ///        "gender": "Male",
+    ///        "gender": "Male"
     ///     }
     ///
     /// </remarks>
-    /// <response code="200">If succeeded, returns the newly created item</response>
+    /// <response code="201">If succeeded, returns the newly created item</response>
     /// <response code="400">If the request body is invalid</response>
     /// <response code="500">If the server is non-responsive</response>
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(CustomerRequest requestObject)
+    public async Task<ActionResult<CustomerRequest>> CreateAsync(CustomerRequest requestObject)
     {
+        Console.WriteLine("----------------test-----------------", requestObject);
         try
         {
             if (ModelState.IsValid)
