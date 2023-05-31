@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ProductController } from './product.controller';
+import { ProductController } from './product-rest.controller';
 import {mongoUrl, rabbitmqUrl } from './connection';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './models/product';
