@@ -18,10 +18,4 @@ export class CustomerController {
     console.log('customer information update ', data);
   }
 
-  @MessagePattern('CustomerAccountDeleted')
-  async deleteCustomer(data: Record<string, unknown>) {
-    console.log('delete customer', data);
-    this.customerService.deleteCustomer(data);
-  }
-
 }
