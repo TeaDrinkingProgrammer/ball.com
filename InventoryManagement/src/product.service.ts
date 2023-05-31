@@ -25,30 +25,15 @@ export class ProductService {
       },
     });
 
-    const productInfoChanged = jsonEvent({
-      type: ProductInfoChangedEvent,
-      data: {
-        ...new ProductInfo({ id: uuid, ...ProductPayload })
-      },
-    });
-
-    const productStockChanged = jsonEvent({
-      type: ProductStockChangedEvent,
-      data: {
-        ...new ProductStock({ id: uuid, ...ProductPayload })
-      },
-    });
-
     try {
-      if (! await productExists(this.productModel, product.id)) {
+      if (await productExists(this.productModel, product.id)) {
         Logger.error("Product already exists. Aborting create");
         return Promise.reject({ status: 409, message: "Product already exists." })
       }
 
       await this.productModel.create(product);
 
-      await eventStore.appendToStream(productInfoChanged.type, [productInfoChanged]);
-      await eventStore.appendToStream(productStockChanged.type, [productStockChanged]);
+      await eventStore.appendToStream(productCreated.type, [productCreated]);
 
       Logger.log("Product created", productCreated.type, { ...productCreated.data });
       return productCreated;
@@ -132,7 +117,6 @@ export class ProductService {
     const dbProduct = await this.productModel.findOne({ id: product.id });
 
     try {
-
       if (dbProduct === null) {
         Logger.error("Product does not exist. aborting update");
         return Promise.reject({ status: 404, message: "Cannot update product stock when product does not exist" })
@@ -191,46 +175,13 @@ export class ProductService {
       return Promise.reject({ status: 500, message: "Internal Server Error" })
     }
   }
-
-  async deleteProduct(ProductId: string): Promise<{
-    type: string,
-    data: ProductDeleted
-  }> {
-    const product = new ProductDeleted(ProductId);
-    const addedEvent = jsonEvent({
-      type: ProductDiscontinuedEvent,
-      data: {
-        ...product
-      },
-    });
-
-    try {
-      if (! await productExists(this.productModel, product.id)) {
-        Logger.error("Cannot delete product when product does not exist");
-        return Promise.reject({ status: 404, message: "Cannot delete product when product does not exist" })
-      }
-
-      await this.productModel.deleteOne({ id: product.id });
-
-      await eventStore.appendToStream(addedEvent.type, [addedEvent]);
-
-      Logger.log('Product deleted');
-
-      return addedEvent;
-
-    } catch (error) {
-      Logger.error(error);
-      return Promise.reject({ status: 500, message: "Internal Server Error" })
-    }
-  }
-
 }
 
 
 async function productExists(productModel: Model<Product>, productId: string) {
   if (await productModel.findOne({ id: productId }) === null) {
     Logger.debug("Product does not exist.");
-    return true;
+    return false;
   }
-  return false;
+  return true;
 }
