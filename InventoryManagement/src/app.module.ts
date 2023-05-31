@@ -17,7 +17,7 @@ import { Product, ProductSchema } from './models/product';
         name: 'SERVICE', transport: Transport.RMQ,
         options: {
           urls: [rabbitmqUrl],
-          queue: 'product',
+          queue: 'sales',
           queueOptions: {
               durable: false
           },
