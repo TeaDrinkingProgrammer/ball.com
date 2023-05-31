@@ -11,6 +11,7 @@ import { ProductService } from './product.service';
 import { CustomerService } from './customer.service';
 import { CustomerController } from './customer.controller';
 import { Customer, CustomerSchema } from './models/customer';
+import { RabbitMQService } from './rabbitmq.service';
 
 @Module({
   imports: [
