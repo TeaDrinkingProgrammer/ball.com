@@ -54,17 +54,6 @@ export class ProductController {
     return { message: 'Product stock updated',stock: newStock, status: 201 };
   }
 
-  @EventPattern('ProductStockChanged')
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async updateProductStockEvent( @Body() productPayload: ProductStockPayload) {
-    Logger.log('Product created', productPayload);
-    try {
-      await this.productService.updateProductStock(productPayload);
-    } catch (error) {
-      return { message: error, status: 400 };
-    }
-  }
-
   @Patch('info')
   @UsePipes(new ValidationPipe({ transform: true }))
   async updateProductInfoREST(@Body() productPayload: ProductInfoPayload) {
