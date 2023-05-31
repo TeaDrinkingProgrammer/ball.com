@@ -31,17 +31,17 @@ import { RabbitMQService } from './rabbitmq.service';
             durable: false
           },
         },
-      },
-      {
-        name: 'INVOICEQUEUE', transport: Transport.RMQ,
-        options: {
-          urls: [rabbitmqUrl],
-          queue: 'invoice',
-          queueOptions: {
-            durable: false
-          },
+      }]),
+    ClientsModule.register([{
+      name: 'INVOICEQUEUE', transport: Transport.RMQ,
+      options: {
+        urls: [rabbitmqUrl],
+        queue: 'invoice',
+        queueOptions: {
+          durable: false
         },
       },
+    },
     ]),
   ],
   controllers: [ProductController, AppController, CustomerController],
