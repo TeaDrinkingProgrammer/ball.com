@@ -43,7 +43,7 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
         logMessage.AppendLine($" - Port: {_port}");
         logMessage.AppendLine($" - UserName: {_username}");
         logMessage.AppendLine($" - Password: {new string('*', _password.Length)}");
-        logMessage.Append($" - Queue: {_queue}");
+        logMessage.AppendLine($" - Queue: {_queue}");
         Console.WriteLine(logMessage.ToString());
 
         Connect();
@@ -54,7 +54,7 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
     /// </summary>
     /// <param name="messageType">Type of the message.</param>
     /// <param name="message">The message to publish.</param>
-    public Task PublishMessageAsync(string messageType, object message)
+    public Task PublishMessageAsync(string messageType, object message, int sendTo)
     {
         return Task.Run(() =>
             {
@@ -62,7 +62,8 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
                 var body = Encoding.UTF8.GetBytes(data);
                 IBasicProperties properties = _model.CreateBasicProperties();
                 properties.Headers = new Dictionary<string, object> { { "MessageType", messageType } };
-                _model.BasicPublish(exchange: "", routingKey: "customer", properties, body: body);
+                if (sendTo == 0 || sendTo == 2) _model.BasicPublish(exchange: "", routingKey: "sales", properties, body: body);
+                if (sendTo == 1 || sendTo == 2) _model.BasicPublish(exchange: "", routingKey: "invoice", properties, body: body);
                 //_model.BasicPublish(exchange: "", routingKey: "customer", body: body);
             });
     }
@@ -78,7 +79,10 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
                 factory.AutomaticRecoveryEnabled = true;
                 _connection = factory.CreateConnection(_hosts);
                 _model = _connection.CreateModel();
-                _model.QueueDeclare(_queue, durable: true, exclusive: false, autoDelete: false);
+                //_model.QueueDeclare(_queue, exclusive: false);
+                _model.QueueDeclare("sales", durable: true, exclusive: false, autoDelete: false);
+                _model.QueueDeclare("invoice", durable: true, exclusive: false, autoDelete: false);
+                //_model.QueueDeclare("_queue", durable: true, exclusive: false, autoDelete: false);
             });
     }
 
