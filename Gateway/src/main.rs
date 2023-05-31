@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate log;
 
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, io::Write};
 
 use actix_web::{
     web::{self, Data},
@@ -28,6 +28,7 @@ impl<'a> Default for State<'a> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    std::io::stdout().flush().unwrap();
     env_logger::init();
     let state = Data::new(State::default());
     HttpServer::new(move || {
@@ -46,19 +47,19 @@ fn set_hosts<'a>() -> HashMap<&'a str, String> {
         info!("binding to container hostnames");
         hosts.insert(
             "order",
-            "http://order:3000/order_management_service".to_string(),
+            "http://order_management_service:3000/order".to_string(),
         );
         hosts.insert(
             "product",
-            "http://product:3001/product_management_service".to_string(),
+            "http://product_management_service:3001/product".to_string(),
         );
         hosts.insert(
             "customer",
-            "http://customer:3002/api/customer_management_service".to_string(),
+            "http://customer_management_service:3002/api/customer".to_string(),
         );
         hosts.insert(
             "invoice",
-            "http://invoice:3003/invoice_management_service".to_string(),
+            "http://invoice_management_service:3003/invoice".to_string(),
         );
     } else {
         info!("binding to local hostnames");

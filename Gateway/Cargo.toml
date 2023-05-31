@@ -8,11 +8,6 @@ actix-web = {version = "4.3.1", features = [] }
 reqwest = {version = "0.11.18", features = [] }
 log = "0.4.18"
 env_logger = "0.10.0"
-[profile.dev]
-opt-level = 0
-codegen-units = 1
-incremental = true
-
 [profile.release]
 opt-level = 3
 

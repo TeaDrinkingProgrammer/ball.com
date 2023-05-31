@@ -1,11 +1,8 @@
-# 1. This tells docker to use the Rust official image
-FROM rust:latest
+FROM rust:1.67 as builder
+WORKDIR /usr/src/myapp
+COPY . .
+RUN cargo install --path .
 
-# 2. Copy the files in your machine to the Docker image
-COPY ./ ./
-
-# Build your program for release
-RUN cargo build
-
-# Run the binary
-CMD ["./target/debug/gateway"]
+FROM debian:latest
+COPY --from=builder /usr/local/cargo/bin/gateway /usr/local/bin/gateway
+CMD ["gateway"]
