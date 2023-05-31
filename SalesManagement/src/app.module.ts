@@ -11,6 +11,7 @@ import { ProductService } from './product.service';
 import { CustomerService } from './customer.service';
 import { CustomerController } from './customer.controller';
 import { Customer, CustomerSchema } from './models/customer';
+import { RabbitMQService } from './rabbitmq.service';
 
 @Module({
   imports: [
@@ -30,17 +31,17 @@ import { Customer, CustomerSchema } from './models/customer';
             durable: false
           },
         },
-      },
-      {
-        name: 'INVOICEQUEUE', transport: Transport.RMQ,
-        options: {
-          urls: [rabbitmqUrl],
-          queue: 'invoice',
-          queueOptions: {
-            durable: false
-          },
+      }]),
+    ClientsModule.register([{
+      name: 'INVOICEQUEUE', transport: Transport.RMQ,
+      options: {
+        urls: [rabbitmqUrl],
+        queue: 'invoice',
+        queueOptions: {
+          durable: false
         },
       },
+    },
     ]),
   ],
   controllers: [ProductController, AppController, CustomerController],

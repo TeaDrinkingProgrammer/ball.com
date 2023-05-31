@@ -5,11 +5,12 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './models/product';
 import { Customer } from './models/customer';
+import { RabbitMQService } from './rabbitmq.service';
 
 @Injectable()
 export class OrderService {
 
-  constructor(@Inject('SERVICE') private readonly client: ClientProxy,
+  constructor(private readonly client: RabbitMQService,
     @InjectModel(Order.name) private readonly orderModel: Model<Order>,
     @InjectModel(Product.name) private readonly productModel: Model<Product>,
     @InjectModel(Customer.name) private readonly customerModel: Model<Customer>,
