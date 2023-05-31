@@ -19,7 +19,7 @@ export class Invoice {
     @Prop({ required: true })
   amount: number;
     @Prop({ required: true, enum: PaymentStatus })
-  payementStatus: string;
+  paymentStatus: string;
     @Prop({ required: true })
   customer: Customer;
     @Prop({ default: Date.now })
@@ -30,7 +30,7 @@ export class Invoice {
   constructor(order: Order, customer: Customer) {
     this.order = order;
     this.amount = calculateAmount(order);
-    this.payementStatus = PaymentStatus.pending;
+    this.paymentStatus = PaymentStatus.pending;
     this.customer = customer;
   }
 }

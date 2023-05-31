@@ -8,8 +8,8 @@ export class InvoiceController {
 
   @Put('/:invioceId')
   updateOrderStatus(@Param('invioceId') invioceId: string, @Body() body: any) {
-    if ((<any>Object).values(PaymentStatus).includes(body.payementStatus)) {
-        return this.invoiceService.updateInvoicePayementStatus(invioceId, body.payementStatus);
+    if ((<any>Object).values(PaymentStatus).includes(body.paymentStatus)) {
+        return this.invoiceService.updateInvoicePaymentStatus(invioceId, body.paymentStatus);
     } else {
         return { message: 'Invalid paymentStatus', status: 400 };
     }
