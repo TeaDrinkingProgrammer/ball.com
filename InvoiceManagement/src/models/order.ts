@@ -7,10 +7,6 @@ export type OrderDocument = HydratedDocument<Order>;
 
 @Schema()
 export class Order {
-
-    @Prop({ required: true })
-    totalAmount: number;
-
     @Prop({ required: true })
     paymentMethod: string;
 
@@ -25,7 +21,6 @@ export class Order {
         }[]
 
     constructor(data: any) {
-        this.totalAmount = data.totalAmount;
         this.paymentMethod = data.paymentMethod;
         this.shippingAddress = data.shippingAddress;
         this.products = data.products;

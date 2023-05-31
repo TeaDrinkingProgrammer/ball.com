@@ -19,7 +19,9 @@ import { Product, ProductSchema } from './models/product';
           urls: [rabbitmqUrl],
           queue: 'sales',
           queueOptions: {
-              durable: false
+            durable: true,
+            exclusive: false,
+            autoDelete: false
           },
         },
       },

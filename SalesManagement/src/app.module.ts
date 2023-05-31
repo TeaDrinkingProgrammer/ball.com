@@ -28,7 +28,9 @@ import { RabbitMQService } from './rabbitmq.service';
           urls: [rabbitmqUrl],
           queue: 'inventory',
           queueOptions: {
-            durable: false
+            durable: true,
+            exclusive: false,
+            autoDelete: false
           },
         },
       }]),
@@ -38,7 +40,9 @@ import { RabbitMQService } from './rabbitmq.service';
         urls: [rabbitmqUrl],
         queue: 'invoice',
         queueOptions: {
-          durable: false
+          durable: true,
+          exclusive: false,
+          autoDelete: false
         },
       },
     },
