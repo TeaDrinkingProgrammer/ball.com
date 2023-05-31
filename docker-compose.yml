@@ -62,6 +62,17 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  # no stdout
+  # gateway:
+  #   container_name: gateway
+  #   build:
+  #     context: ./Gateway
+  #   ports:
+  #    - 80:5000
+  #   environment:
+  #     containerized: 'true'
+  #     RUST_LOG: 'info'
+
   # Microservices
   sales_management_service:
     build:

@@ -75,7 +75,7 @@ export class OrderService {
   }
 
   async updateOrderStatus(orderId: string, status: string): Promise<any> {
-    let update = await this.orderModel.findOneAndUpdate({ _id: orderId }, { status: status });
+    let update = await this.orderModel.findByIdAndUpdate(orderId, { status: status });
     if (!update) {
       return { message: 'Order not found', status: 404 };
     } else {
