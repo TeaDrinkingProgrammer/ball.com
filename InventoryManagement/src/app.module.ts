@@ -5,6 +5,7 @@ import { ProductController } from './product-rest.controller';
 import {mongoUrl, rabbitmqUrl } from './connection';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './models/product';
+import { ProductEventController } from './product-event.controller';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { Product, ProductSchema } from './models/product';
       },
     ]),
   ],
-  controllers: [ProductController],
+  controllers: [ProductController, ProductEventController],
   providers: [ProductService],
 })
 export class AppModule {}

@@ -82,6 +82,37 @@ export class ProductService {
     }
     return returnedEvents
   }
+  async orderPlaced(ProductPayload: ProductStockPayload): Promise<{
+    type: string,
+    data: ProductStock
+  }> {
+    const product = new ProductStock(ProductPayload);
+    const addedEvent = jsonEvent({
+      type: 'OrderPlaced',
+      data: {
+        ...product
+      },
+    });
+
+    const dbProduct = await this.productModel.findOne({ id: product.id });
+
+    try {
+      const newQuantity = dbProduct.quantity - product.quantity
+
+      await this.productModel.updateOne({ id: product.id }, { quantity: newQuantity });
+
+      await eventStore.appendToStream(addedEvent.type, [addedEvent]);
+
+      Logger.log('Order placed');
+      addedEvent.data.quantity = newQuantity;
+      return addedEvent;
+
+    } catch (error) {
+
+      Logger.error(error);
+      return Promise.reject({ status: 500, message: "Internal Server Error" })
+    }
+  }
 
   async updateProductStock(ProductPayload: ProductStockPayload): Promise<{
     type: string,

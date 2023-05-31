@@ -11,9 +11,11 @@ async function bootstrap() {
   // Invoice service does not exist yet - just as an example.
   app.connectMicroservice<MicroserviceOptions>({transport: Transport.RMQ, options: {
     urls: [rabbitmqUrl],
-    queue: 'product',
+    queue: 'inventory',
     queueOptions: {
-        durable: false
+      durable: true,
+      exclusive: false,
+      autoDelete: false
     },
   }});
 
