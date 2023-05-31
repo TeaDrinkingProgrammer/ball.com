@@ -51,7 +51,6 @@ export class ProductController {
     } catch (error) {
       return { message: error, status: 400 };
     }
-    // { message: 'Product stock updated',stock: newStock, status: 201 }
     return { message: 'Product stock updated',stock: newStock, status: 201 };
   }
 
