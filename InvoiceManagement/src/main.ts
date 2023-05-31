@@ -15,7 +15,19 @@ async function bootstrap() {
     }
   });
 
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ, options: {
+      urls: [rabbitmqUrl],
+      queue: 'customer',
+      queueOptions: {
+        durable: true,
+        exclusive: false,
+        autoDelete: false
+      },
+    }
+  });
+
   await app.startAllMicroservices();
-  await app.listen(3000);
+  await app.listen(3003);
 }
 bootstrap();

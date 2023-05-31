@@ -15,7 +15,7 @@ export class ProductController {
   }
 
   @EventPattern('ProductStockChanged')
-  async handleProductQuantityChanged(data: Record<string, unknown>) {
+  async handleProductStockChanged(data: Record<string, unknown>) {
     console.log('stock ', data);
     let json = JSON.stringify(data);
     this.productService.updateStock(JSON.parse(json));

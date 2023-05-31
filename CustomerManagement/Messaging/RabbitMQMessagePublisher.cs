@@ -82,6 +82,7 @@ public sealed class RabbitMQMessagePublisher : IMessagePublisher, IDisposable
                 //_model.QueueDeclare(_queue, exclusive: false);
                 _model.QueueDeclare("sales", durable: true, exclusive: false, autoDelete: false);
                 _model.QueueDeclare("invoice", durable: true, exclusive: false, autoDelete: false);
+                //_model.QueueDeclare("_queue", durable: true, exclusive: false, autoDelete: false);
             });
     }
 
