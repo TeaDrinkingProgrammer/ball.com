@@ -5,7 +5,7 @@ import { Customer } from "./customer";
 
 export type InvoiceDocument = HydratedDocument<Invoice>;
 
-enum PayementStatus {
+export enum PayementStatus {
     paid = "paid",
     pending = "pending",
     cancelled = "cancelled"

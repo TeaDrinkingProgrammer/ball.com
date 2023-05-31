@@ -20,7 +20,7 @@ export class InvoiceService {
     Logger.log(invoiceId);
     let invoice;
     try {
-      invoice = await this.orderModel.findById(invoiceId).select('-__v');
+      invoice = await this.orderModel.findById(invoiceId).select('-__v').exec();
     } catch (e) {
       return { message: 'Invoice not found', status: 404 };
     }
@@ -28,7 +28,16 @@ export class InvoiceService {
   }
 
   async getInvoices(): Promise<any> {
-    const invoices = await this.invoiceModel.find().select('-__v');
+    const invoices = await this.invoiceModel.find().select('-__v').exec();
     return { data: invoices, status: 200 };
+  }
+
+  async updateInvoicePayementStatus(invoiceId: string, payementStatus: string): Promise<any> {
+    try {
+      await this.invoiceModel.findByIdAndUpdate({_id: invoiceId}, { payementStatus: payementStatus}).exec();
+    } catch (e) {
+      return { message: 'Invoice not found', status: 404 };
+    }
+    return { message: 'Invoice status updated', status: 200 };
   }
 }
