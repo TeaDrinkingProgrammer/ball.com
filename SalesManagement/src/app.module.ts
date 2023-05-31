@@ -22,10 +22,20 @@ import { Customer, CustomerSchema } from './models/customer';
     ]),
     ClientsModule.register([
       {
-        name: 'SERVICE', transport: Transport.RMQ,
+        name: 'INVENTORYQUEUE', transport: Transport.RMQ,
         options: {
           urls: [rabbitmqUrl],
-          queue: 'order',
+          queue: 'inventory',
+          queueOptions: {
+            durable: false
+          },
+        },
+      },
+      {
+        name: 'INVOICEQUEUE', transport: Transport.RMQ,
+        options: {
+          urls: [rabbitmqUrl],
+          queue: 'invoice',
           queueOptions: {
             durable: false
           },
@@ -34,6 +44,6 @@ import { Customer, CustomerSchema } from './models/customer';
     ]),
   ],
   controllers: [ProductController, AppController, CustomerController],
-  providers: [OrderService, ProductService, CustomerService],
+  providers: [OrderService, ProductService, CustomerService, RabbitMQService],
 })
 export class AppModule { }
