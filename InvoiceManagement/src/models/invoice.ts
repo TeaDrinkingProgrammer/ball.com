@@ -5,7 +5,7 @@ import { Customer } from "./customer";
 
 export type InvoiceDocument = HydratedDocument<Invoice>;
 
-export enum PayementStatus {
+export enum PaymentStatus {
     paid = "paid",
     pending = "pending",
     cancelled = "cancelled"
@@ -18,7 +18,7 @@ export class Invoice {
   order: Order;
     @Prop({ required: true })
   amount: number;
-    @Prop({ required: true, enum: PayementStatus })
+    @Prop({ required: true, enum: PaymentStatus })
   payementStatus: string;
     @Prop({ required: true })
   customer: Customer;
@@ -30,7 +30,7 @@ export class Invoice {
   constructor(order: Order, customer: Customer) {
     this.order = order;
     this.amount = calculateAmount(order);
-    this.payementStatus = PayementStatus.pending;
+    this.payementStatus = PaymentStatus.pending;
     this.customer = customer;
   }
 }
