@@ -75,6 +75,7 @@ public static class Configuration
             }
         }
     }
+
     private static void DetermineUsername(IConfigurationSection configSection)
     {
         _userName = configSection["UserName"];
