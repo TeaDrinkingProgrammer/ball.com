@@ -25,7 +25,7 @@ export class ProductService {
       },
     });
 
-    const productCategoryChanged = jsonEvent({
+    const productInfoChanged = jsonEvent({
       type: ProductInfoChangedEvent,
       data: {
         ...new ProductInfo({ id: uuid, ...ProductPayload })
@@ -47,7 +47,7 @@ export class ProductService {
 
       await this.productModel.create(product);
 
-      await eventStore.appendToStream(productCategoryChanged.type, [productCategoryChanged]);
+      await eventStore.appendToStream(productInfoChanged.type, [productInfoChanged]);
       await eventStore.appendToStream(productStockChanged.type, [productStockChanged]);
 
       Logger.log("Product created", productCreated.type, { ...productCreated.data });
