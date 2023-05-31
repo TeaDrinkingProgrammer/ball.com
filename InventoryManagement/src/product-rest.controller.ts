@@ -67,16 +67,4 @@ export class ProductController {
     
     return { message: 'Product metadata updated', status: 201 };
   }
-
-  @Delete(':productId')
-  async DiscontinueProductCategoryREST(@Param('productId') productId: string) {
-    try {
-      const addedEvent = await this.productService.deleteProduct(productId);
-      this.client.emit(addedEvent.type, addedEvent.data);
-    } catch (error) {
-      return { message: error, status: 400 };
-    }
-    
-    return { message: 'Product deleted', status: 200 };
-  }
 }
