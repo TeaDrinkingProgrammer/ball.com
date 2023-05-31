@@ -127,7 +127,7 @@ public class CustomerController : ControllerBase
                 Customer customer = requestObject.MapCustomerAccountCreatedToCustomer();
                 var customerId = await _customerRepoService.Insert(customer);
 
-                await _messagePublisher.PublishMessageAsync(requestObject.EventType, customer);
+                await _messagePublisher.PublishMessageAsync(requestObject.EventType, customer, 2);
 
                 return Ok(customer);
             }
@@ -199,7 +199,7 @@ public class CustomerController : ControllerBase
 
                 await _customerRepoService.Update(customer);
 
-                await _messagePublisher.PublishMessageAsync(requestObject.EventType, customer);
+                await _messagePublisher.PublishMessageAsync(requestObject.EventType, customer, 2);
 
                 return Ok(customer);
             }
@@ -245,7 +245,7 @@ public class CustomerController : ControllerBase
             }
             await _customerRepoService.Delete(customer);
 
-            await _messagePublisher.PublishMessageAsync("CustomerAccountDeleted", new { Id = customerId });
+            await _messagePublisher.PublishMessageAsync("CustomerAccountDeleted", new { Id = customerId }, 0);
 
             return Ok($"Message: User with id {customerId} is deleted.");
         }
