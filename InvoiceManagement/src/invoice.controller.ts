@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Put } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
-import { PayementStatus } from './models/invoice';
+import { PaymentStatus } from './models/invoice';
 
 @Controller("invoice")
 export class InvoiceController {
@@ -8,10 +8,10 @@ export class InvoiceController {
 
   @Put('/:invioceId')
   updateOrderStatus(@Param('invioceId') invioceId: string, @Body() body: any) {
-    if ((<any>Object).values(PayementStatus).includes(body.payementStatus)) {
+    if ((<any>Object).values(PaymentStatus).includes(body.payementStatus)) {
         return this.invoiceService.updateInvoicePayementStatus(invioceId, body.payementStatus);
     } else {
-        return { message: 'Invalid payementStatus', status: 400 };
+        return { message: 'Invalid paymentStatus', status: 400 };
     }
   }
 

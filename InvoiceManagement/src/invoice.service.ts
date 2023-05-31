@@ -32,9 +32,9 @@ export class InvoiceService {
     return { data: invoices, status: 200 };
   }
 
-  async updateInvoicePayementStatus(invoiceId: string, payementStatus: string): Promise<any> {
+  async updateInvoicePayementStatus(invoiceId: string, paymentStatus: string): Promise<any> {
     try {
-      await this.invoiceModel.findByIdAndUpdate({_id: invoiceId}, { payementStatus: payementStatus}).exec();
+      await this.invoiceModel.findByIdAndUpdate({_id: invoiceId}, { paymentStatus: paymentStatus}).exec();
     } catch (e) {
       return { message: 'Invoice not found', status: 404 };
     }
