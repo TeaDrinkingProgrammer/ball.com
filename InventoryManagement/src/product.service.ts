@@ -105,7 +105,6 @@ export class ProductService {
       }
       const newQuantity = dbProduct.quantity + product.quantity
 
-      //TODO: What if the stock goes below zero?
       if (newQuantity < 0) {
         return Promise.reject({ status: 404, message: "Stock cannot go below zero" })
       }
