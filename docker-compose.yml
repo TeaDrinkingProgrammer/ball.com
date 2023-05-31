@@ -74,6 +74,7 @@ services:
       rabbitmqURL: 'rabbitmq'
     depends_on:
       - rabbitmq
+      - mongo
 
   inventory_management_service:
     build:
@@ -84,9 +85,11 @@ services:
     environment:
       eventstoredbURL: 'eventstoredb'
       rabbitmqURL: 'rabbitmq'
+      mongodbURL: 'mongo'
     depends_on:
       - rabbitmq
       - eventstoredb
+      - mongo
 
   customer_management_service:
     image: ${DOCKER_REGISTRY-}customermanagement
@@ -97,6 +100,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
     ports:
       - 3002:80
+    depends_on:
+      - rabbitmq
+      - mariadb
 
   invoice_management_service:
     build:

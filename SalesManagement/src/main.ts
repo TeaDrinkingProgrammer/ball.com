@@ -8,9 +8,11 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ, options: {
       urls: [rabbitmqUrl],
-      queue: 'order',
+      queue: 'sales',
       queueOptions: {
-        durable: false
+        durable: true,
+        exclusive: false,
+        autoDelete: false
       },
     }
   });

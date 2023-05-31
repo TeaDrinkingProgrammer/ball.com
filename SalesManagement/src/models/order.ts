@@ -14,8 +14,6 @@ export enum Status {
 export class OrderPayload {
     @IsString()
     customerId: string;
-    @IsNumber()
-    totalAmount: number;
     @IsString()
     paymentMethod: string;
     @IsString()

@@ -41,8 +41,15 @@ export class OrderService {
     let productList: { product: Product, quantity: number }[] = [];
     for (let product of products) {
       let quantity = orderPayload.products.find(p => p.productId === product.productId).quantity;
+      if (product.stock < quantity) {
+        return { message: `Product ${product.name} - ${product.productId} out of stock`, status: 400 };
+      }
       productList.push({ product, quantity });
     }
+
+    productList.forEach(async (product) => {
+      await this.productModel.findOneAndUpdate({ productId: product.product.productId }, { stock: product.product.stock - product.quantity });
+    });
 
 
     let order = new Order(orderPayload, productList);
