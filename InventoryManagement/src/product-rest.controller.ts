@@ -59,7 +59,7 @@ export class ProductController {
   async updateProductInfoREST(@Body() productPayload: ProductInfoPayload) {
     try {
     Logger.log('Product category changed request', productPayload)
-      const addedEvent = await this.productService.updateProductCategory(productPayload);
+      const addedEvent = await this.productService.updateProductInfo(productPayload);
       this.client.emit(addedEvent.type, addedEvent.data);
     } catch (error) {
       return { message: error, status: 400 };

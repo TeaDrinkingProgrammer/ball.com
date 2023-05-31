@@ -9,6 +9,7 @@ export class ProductEventController {
     @EventPattern('OrderPlaced')
     async updateProductStockEvent(data: Record<string, unknown>) {
       Logger.log('Order placed', data);
+      
       const jsonObject = JSON.parse(JSON.stringify(data));
       
       for (const product of jsonObject.products) {
@@ -16,11 +17,13 @@ export class ProductEventController {
           id: product.product.productId,
           quantity: product.quantity
         }
+        
         try {
           await this.productService.orderPlaced(productStockPayload);
         } catch (error) {
           return { message: error, status: 400 };
         }
+        
       }
     }
 }
